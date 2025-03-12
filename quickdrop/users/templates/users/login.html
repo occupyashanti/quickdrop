@@ -1,0 +1,42 @@
+{% extends "users/base.html" %}
+{% load static %}  <!-- Ensure static files are loaded -->
+
+{% block content %}
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center">
+    <div class="row w-75 shadow-lg rounded overflow-hidden">
+        <!-- Left Side (Image) -->
+        <div class="col-md-6 p-0 d-none d-md-block">
+            <img src="{% static 'images/login_image.jpeg' %}" class="img-fluid w-100 h-100" alt="Delivery">
+        </div>
+
+        <!-- Right Side (Login Form) -->
+        <div class="col-md-6 bg-white p-5 d-flex flex-column justify-content-center">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">QuickDrop</h2>
+                <p class="text-muted">Log in below to continue</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Username</label>
+                    <input type="text" name="username" class="form-control" placeholder="Enter your username" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-dark w-100 py-2">Login</button>
+            </form>
+            
+
+            <hr class="my-4">
+
+            <div class="text-center">
+                <p class="text-muted">Don't have an account?</p>
+                <a href="{% url 'register' %}" class="btn btn-success w-100 py-2">Sign up</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+/* src/styles/global.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  body {
+    background-color: #f8f8f8;
+    color: #333;
+  }
+  
+  .dashboard-container {
+    display: flex;
+    height: 100vh;
+  }
+  
+  /* Sidebar Styles */
+  .sidebar {
+    width: 260px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #333;
+    padding: 12px;
+    border-radius: 10px;
+    transition: 0.3s;
+  }
+  
+  .sidebar a.active {
+    background: #ffe48f;
+  }
+  
+  .sidebar a:hover {
+    background: #ffe48f;
+  }
+  
+  /* Main Content */
+  .content {
+    flex: 1;
+    padding: 30px;
+  }
+  
+  .card {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body, html {
+    height: 100%;
+    width: 100%;
+  }
+  
+  .content {
+    display: block !important; /* Ensure content is visible */
+    color: black; /* Ensure text is readable */
+  }
+  

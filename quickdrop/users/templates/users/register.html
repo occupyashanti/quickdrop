@@ -1,0 +1,108 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block title %}Register - QuickDrop{% endblock %}
+
+{% block content %}
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center bg-gradient">
+    <div class="row w-100 shadow-lg rounded overflow-hidden" style="max-width: 900px;">
+        <!-- Left Side (Image) -->
+        <div class="col-lg-5 d-none d-lg-block p-0">
+            <img src="{% static 'images/register.jpeg' %}" class="img-fluid w-100 h-100" style="object-fit: cover;" alt="Delivery">
+        </div>
+
+        <!-- Right Side (Registration Form) -->
+        <div class="col-lg-7 bg-white p-5">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">Join QuickDrop</h2>
+                <p class="text-muted">Sign up to start delivering or receiving deliveries</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold"><i data-lucide="user"></i> First Name</label>
+                        <input type="text" class="form-control" placeholder="John" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold"><i data-lucide="user"></i> Last Name</label>
+                        <input type="text" class="form-control" placeholder="Doe" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i data-lucide="mail"></i> Email</label>
+                    <input type="email" class="form-control" placeholder="you@example.com" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i data-lucide="lock"></i> Password</label>
+                    <input type="password" class="form-control" placeholder="Enter a strong password" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i data-lucide="phone"></i> Phone Number</label>
+                    <input type="tel" class="form-control" placeholder="+254 700 123456" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i data-lucide="map-pin"></i> Address</label>
+                    <input type="text" class="form-control" placeholder="123 Street, Nairobi, Kenya" required>
+                </div>
+
+                <!-- User Role Selection -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i data-lucide="users"></i> Register as</label>
+                    <select class="form-select" id="userType" required>
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="customer">Customer - Get deliveries</option>
+                        <option value="worker">Worker - Deliver packages</option>
+                    </select>
+                </div>
+
+                <!-- Vehicle Type (Only for Workers) -->
+                <div class="mb-3 d-none" id="vehicleSelection">
+                    <label class="form-label fw-bold"><i data-lucide="truck"></i> Vehicle Type</label>
+                    <select class="form-select">
+                        <option value="" disabled selected>Select your vehicle</option>
+                        <option value="bike">Motorbike</option>
+                        <option value="car">Car</option>
+                        <option value="van">Van</option>
+                        <option value="truck">Truck</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 py-2">Sign Up</button>
+            </form>
+
+            <hr class="my-4">
+
+            <div class="text-center">
+                <p class="text-muted">Already have an account?</p>
+                <a href="{% url 'login' %}" class="btn btn-dark w-100 py-2">Log in</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const userType = document.getElementById("userType");
+        const vehicleSelection = document.getElementById("vehicleSelection");
+
+        userType.addEventListener("change", function () {
+            if (this.value === "worker") {
+                vehicleSelection.classList.remove("d-none");
+            } else {
+                vehicleSelection.classList.add("d-none");
+            }
+        });
+
+        lucide.createIcons(); // Initialize Lucide icons
+    });
+</script>
+
+{% endblock %}
