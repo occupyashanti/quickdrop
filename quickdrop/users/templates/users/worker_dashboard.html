@@ -1,0 +1,748 @@
+{% extends "users/dashboard_base.html" %}
+{% load static %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-primary text-white border-0 rounded-4 shadow-sm overflow-hidden">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center">
+                        <div class="me-md-3 mb-3 mb-md-0 text-center text-md-start">
+                            <div class="bg-white bg-opacity-25 rounded-circle p-3 d-inline-flex mb-3 mb-md-0">
+                                <i data-lucide="truck" style="width: 48px; height: 48px;"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="mb-1 fw-bold">Welcome back, {{ request.user.first_name }}!</h2>
+                            <p class="mb-0 opacity-75 fs-5">{{ today_date|date:"l, F j, Y" }}</p>
+                        </div>
+                        <div class="ms-md-auto mt-3 mt-md-0">
+                            <button class="btn btn-light rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#quickTipsModal">
+                                <i data-lucide="help-circle" class="me-2" style="width: 18px; height: 18px;"></i> Quick Tips
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 rounded-4 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                            <i data-lucide="briefcase" class="text-primary" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">{{ active_jobs.count }}</h3>
+                            <p class="text-muted mb-0">Active Jobs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 rounded-4 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                            <i data-lucide="check-circle" class="text-success" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">{{ completed_jobs.count }}</h3>
+                            <p class="text-muted mb-0">Completed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 rounded-4 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
+                            <i data-lucide="star" class="text-warning" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">{{ rating|floatformat:1 }}</h3>
+                            <p class="text-muted mb-0">Rating</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 rounded-4 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3">
+                            <i data-lucide="dollar-sign" class="text-info" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">${{ earnings|floatformat:2 }}</h3>
+                            <p class="text-muted mb-0">Today's Earnings</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Tabs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="jobs-tab" data-bs-toggle="tab" href="#jobs-content" role="tab">
+                                <i data-lucide="briefcase" class="me-1" style="width: 18px; height: 18px;"></i> My Jobs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="earnings-tab" data-bs-toggle="tab" href="#earnings-content" role="tab">
+                                <i data-lucide="dollar-sign" class="me-1" style="width: 18px; height: 18px;"></i> Earnings
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="map-tab" data-bs-toggle="tab" href="#map-content" role="tab">
+                                <i data-lucide="map" class="me-1" style="width: 18px; height: 18px;"></i> Map View
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-0">
+                    <div class="tab-content">
+                        <!-- Jobs Tab Content -->
+                        <div class="tab-pane fade show active p-4" id="jobs-content" role="tabpanel">
+                            <!-- Current Job Status -->
+                            {% if current_job %}
+                            <div class="card mb-4 shadow-sm border-primary">
+                                <div class="card-header bg-primary bg-opacity-10 d-flex align-items-center">
+                                    <h5 class="card-title mb-0 text-primary"><i data-lucide="package" class="me-2" style="width: 20px; height: 20px;"></i>Current Job</h5>
+                                    <span class="ms-auto badge bg-primary">In Progress</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="current-job-status">
+                                        <div class="row mb-4">
+                                            <div class="col-md-6">
+                                                <h6 class="mb-2">Delivery #{{ current_job.tracking_id }}</h6>
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="me-2">
+                                                        <i data-lucide="map-pin" class="text-danger"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="mb-0 fw-bold">Pickup:</p>
+                                                        <p class="mb-0">{{ current_job.pickup_location }}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-2">
+                                                        <i data-lucide="map-pin" class="text-success"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="mb-0 fw-bold">Delivery:</p>
+                                                        <p class="mb-0">{{ current_job.delivery_location }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 d-flex flex-column justify-content-center align-items-end">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <i data-lucide="package" class="me-2 text-muted"></i>
+                                                        <span>{{ current_job.package_description }}</span>
+                                                    </div>
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <i data-lucide="clock" class="me-2 text-muted"></i>
+                                                        <span>Estimated time: {{ current_job.estimated_delivery_time|time:"H:i" }}</span>
+                                                    </div>
+                                                </div>
+                                                <form method="POST" action="{% url 'update_job_status' current_job.id %}" style="display: inline;">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="status" value="DELIVERED">
+                                                    <button type="submit" class="btn btn-success btn-lg">
+                                                        <i data-lucide="check" class="me-1"></i> Mark as Delivered
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 50%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Available Jobs -->
+                            <div class="card border-0 rounded-4 shadow-sm">
+                                <div class="card-header bg-white py-3 border-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title mb-0 fw-bold"><i data-lucide="list" class="me-2 text-primary" style="width: 20px; height: 20px;"></i>Available Jobs</h5>
+                                        <span class="badge rounded-pill bg-primary px-3 py-2">{{ available_jobs.count }}</span>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    {% if available_jobs %}
+                                        <div class="table-responsive">
+                                            <table class="table table-hover mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th class="ps-4">Tracking ID</th>
+                                                        <th>Pickup</th>
+                                                        <th>Delivery</th>
+                                                        <th>Package</th>
+                                                        <th>Status</th>
+                                                        <th class="text-end pe-4">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for job in available_jobs %}
+                                                    <tr>
+                                                        <td class="align-middle ps-4">
+                                                            <span class="fw-medium">#{{ job.tracking_id }}</span>
+                                                        </td>
+                                                        <td class="align-middle">{{ job.pickup_location }}</td>
+                                                        <td class="align-middle">{{ job.delivery_location }}</td>
+                                                        <td class="align-middle">{{ job.package_description }}</td>
+                                                        <td class="align-middle">
+                                                            <span class="badge rounded-pill px-3 py-2 bg-warning">
+                                                                <i data-lucide="clock" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                                {{ job.get_status_display }}
+                                                            </span>
+                                                        </td>
+                                                        <td class="align-middle text-end pe-4">
+                                                            <form method="POST" action="{% url 'accept_job' job.id %}" style="display: inline;">
+                                                                {% csrf_token %}
+                                                                <button type="submit" class="btn btn-primary btn-sm rounded-pill shadow-sm">
+                                                                    <i data-lucide="check" class="me-1" style="width: 16px; height: 16px;"></i> Accept
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-center py-5">
+                                            <img src="{% static 'users/img/no-jobs.svg' %}" alt="No jobs" class="mb-4" style="max-width: 200px; opacity: 0.8;">
+                                            <h5 class="text-muted mb-3">No Available Jobs</h5>
+                                            <p class="text-muted mb-4">Check back soon for new delivery opportunities</p>
+                                            <button class="btn btn-outline-primary rounded-pill px-4" onclick="location.reload()">
+                                                <i data-lucide="refresh-cw" class="me-2" style="width: 18px; height: 18px;"></i> Refresh
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Completed Jobs Section -->
+                            <div class="card border-0 rounded-4 shadow-sm mt-4">
+                                <div class="card-header bg-white py-3 border-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title mb-0 fw-bold"><i data-lucide="check-circle" class="me-2 text-success" style="width: 20px; height: 20px;"></i>Completed Jobs</h5>
+                                        <span class="badge rounded-pill bg-success px-3 py-2">{{ job_stats.total_completed }}</span>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    {% if completed_jobs %}
+                                        <div class="table-responsive">
+                                            <table class="table table-hover mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th class="ps-4">Tracking ID</th>
+                                                        <th>Delivery Location</th>
+                                                        <th>Completed</th>
+                                                        <th>Earnings</th>
+                                                        <th class="pe-4">Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for job in completed_jobs %}
+                                                    <tr>
+                                                        <td class="align-middle ps-4">
+                                                            <span class="fw-medium">#{{ job.tracking_id }}</span>
+                                                        </td>
+                                                        <td class="align-middle">{{ job.delivery_location }}</td>
+                                                        <td class="align-middle">{{ job.delivery_time|date:"M d, H:i" }}</td>
+                                                        <td class="align-middle">
+                                                            {% with job_earnings=job.earnings.all %}
+                                                                {% if job_earnings %}
+                                                                    <span class="fw-semibold text-success">${{ job_earnings.0.amount|floatformat:2 }}</span>
+                                                                {% else %}
+                                                                    <span class="text-muted">--</span>
+                                                                {% endif %}
+                                                            {% endwith %}
+                                                        </td>
+                                                        <td class="align-middle pe-4">
+                                                            <span class="badge rounded-pill px-3 py-2 bg-success">
+                                                                <i data-lucide="check" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                                {{ job.get_status_display }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-center py-5">
+                                            <i data-lucide="package-check" style="width: 64px; height: 64px;" class="text-muted mb-4 opacity-75"></i>
+                                            <h5 class="text-muted mb-3">No Completed Jobs</h5>
+                                            <p class="text-muted mb-0">Your completed deliveries will appear here</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Cancelled Jobs Section -->
+                            <div class="card border-0 rounded-4 shadow-sm mt-4">
+                                <div class="card-header bg-white py-3 border-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title mb-0 fw-bold"><i data-lucide="x-circle" class="me-2 text-danger" style="width: 20px; height: 20px;"></i>Cancelled Jobs</h5>
+                                        <span class="badge rounded-pill bg-danger px-3 py-2">{{ job_stats.total_cancelled }}</span>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    {% if cancelled_jobs %}
+                                        <div class="table-responsive">
+                                            <table class="table table-hover mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th class="ps-4">Tracking ID</th>
+                                                        <th>Pickup</th>
+                                                        <th>Delivery</th>
+                                                        <th>Created</th>
+                                                        <th class="pe-4">Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for job in cancelled_jobs %}
+                                                    <tr>
+                                                        <td class="align-middle ps-4">
+                                                            <span class="fw-medium">#{{ job.tracking_id }}</span>
+                                                        </td>
+                                                        <td class="align-middle">{{ job.pickup_location }}</td>
+                                                        <td class="align-middle">{{ job.delivery_location }}</td>
+                                                        <td class="align-middle">{{ job.created_at|date:"M d, H:i" }}</td>
+                                                        <td class="align-middle pe-4">
+                                                            <span class="badge rounded-pill px-3 py-2 bg-danger">
+                                                                <i data-lucide="x" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                                {{ job.get_status_display }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-center py-5">
+                                            <i data-lucide="package-x" style="width: 64px; height: 64px;" class="text-muted mb-4 opacity-75"></i>
+                                            <h5 class="text-muted mb-3">No Cancelled Jobs</h5>
+                                            <p class="text-muted mb-0">Keep up the good work!</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Earnings Tab Content -->
+                        <div class="tab-pane fade p-4" id="earnings-content" role="tabpanel">
+                            <div class="mb-4">
+                                <ul class="nav nav-pills mb-4" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="daily-tab" data-bs-toggle="tab" href="#daily" role="tab">Daily</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="weekly-tab" data-bs-toggle="tab" href="#weekly" role="tab">Weekly</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="monthly-tab" data-bs-toggle="tab" href="#monthly" role="tab">Monthly</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane fade show active" id="daily" role="tabpanel">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-4">
+                                                <div class="text-center p-4 bg-light rounded-3 mb-4 mb-md-0">
+                                                    <i data-lucide="dollar-sign" class="text-success mb-2" style="width: 48px; height: 48px;"></i>
+                                                    <h3 class="mb-1">${{ daily_total|default:"0.00" }}</h3>
+                                                    <p class="text-muted">Today's Total</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="table-responsive">
+                                                    <table class="table table-hover">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>Time</th>
+                                                                <th>Type</th>
+                                                                <th>Description</th>
+                                                                <th class="text-end">Amount</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for earning in daily_earnings %}
+                                                            <tr>
+                                                                <td>{{ earning.timestamp|date:"H:i" }}</td>
+                                                                <td>
+                                                                    {% if earning.earning_type == 'DELIVERY' %}
+                                                                        <span class="badge bg-primary">Delivery</span>
+                                                                    {% elif earning.earning_type == 'TIP' %}
+                                                                        <span class="badge bg-success">Tip</span>
+                                                                    {% elif earning.earning_type == 'BONUS' %}
+                                                                        <span class="badge bg-info">Bonus</span>
+                                                                    {% else %}
+                                                                        <span class="badge bg-secondary">Other</span>
+                                                                    {% endif %}
+                                                                </td>
+                                                                <td>{{ earning.description }}</td>
+                                                                <td class="text-end text-success">${{ earning.amount|floatformat:2 }}</td>
+                                                            </tr>
+                                                            {% empty %}
+                                                            <tr>
+                                                                <td colspan="4" class="text-center py-3 text-muted">
+                                                                    <div class="my-3">
+                                                                        <i data-lucide="info" style="width: 24px; height: 24px;"></i>
+                                                                        <p class="mt-2">No earnings recorded today</p>
+                                                                        <small>Complete deliveries to start earning!</small>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="weekly" role="tabpanel">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-4">
+                                                <div class="text-center p-4 bg-light rounded-3 mb-4 mb-md-0">
+                                                    <i data-lucide="trending-up" class="text-primary mb-2" style="width: 48px; height: 48px;"></i>
+                                                    <h3 class="mb-1">${{ weekly_total|default:"0.00" }}</h3>
+                                                    <p class="text-muted">This Week's Total</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8">
+                                                {% if weekly_data and weekly_data != '[]' %}
+                                                    <canvas id="weeklyChart" height="300"></canvas>
+                                                {% else %}
+                                                    <div class="d-flex justify-content-center align-items-center h-100">
+                                                        <div class="text-center text-muted">
+                                                            <i data-lucide="bar-chart-2" style="width: 48px; height: 48px;"></i>
+                                                            <p class="mt-2">No earnings data available for this week</p>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="monthly" role="tabpanel">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-4">
+                                                <div class="text-center p-4 bg-light rounded-3 mb-4 mb-md-0">
+                                                    <i data-lucide="calendar" class="text-info mb-2" style="width: 48px; height: 48px;"></i>
+                                                    <h3 class="mb-1">${{ monthly_total|default:"0.00" }}</h3>
+                                                    <p class="text-muted">This Month's Total</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8">
+                                                {% if monthly_data and monthly_data != '[]' %}
+                                                    <canvas id="monthlyChart" height="300"></canvas>
+                                                {% else %}
+                                                    <div class="d-flex justify-content-center align-items-center h-100">
+                                                        <div class="text-center text-muted">
+                                                            <i data-lucide="line-chart" style="width: 48px; height: 48px;"></i>
+                                                            <p class="mt-2">No earnings data available for this month</p>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Map Tab Content -->
+                        <div class="tab-pane fade" id="map-content" role="tabpanel">
+                            <div id="jobMap" style="height: 600px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Tips Modal -->
+<div class="modal fade" id="quickTipsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i data-lucide="help-circle" class="me-2"></i>Worker Quick Tips</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="tips-list">
+                    <div class="tip-item mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="me-2 text-primary">
+                                <i data-lucide="check-circle"></i>
+                            </div>
+                            <h6 class="mb-0 fw-bold">Accept Jobs</h6>
+                        </div>
+                        <p class="mb-0 ms-4">Browse available jobs and accept ones that work for your schedule.</p>
+                    </div>
+                    <div class="tip-item mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="me-2 text-primary">
+                                <i data-lucide="map"></i>
+                            </div>
+                            <h6 class="mb-0 fw-bold">Use the Map</h6>
+                        </div>
+                        <p class="mb-0 ms-4">The map view shows you where all available jobs are located.</p>
+                    </div>
+                    <div class="tip-item mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="me-2 text-primary">
+                                <i data-lucide="dollar-sign"></i>
+                            </div>
+                            <h6 class="mb-0 fw-bold">Track Earnings</h6>
+                        </div>
+                        <p class="mb-0 ms-4">Monitor your daily, weekly, and monthly earnings in the Earnings tab.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it!</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.stat-card {
+    border-radius: 10px;
+    padding: 1.25rem;
+    border: 1px solid rgba(0,0,0,.125);
+    transition: all 0.3s ease;
+}
+.stat-card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+    transform: translateY(-5px);
+}
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+.nav-tabs .nav-link.active {
+    font-weight: 600;
+}
+.nav-pills .nav-link.active {
+    box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize job map if the element exists
+    let map;
+    if (document.getElementById('jobMap')) {
+        map = new google.maps.Map(document.getElementById('jobMap'), {
+            center: { lat: -1.2921, lng: 36.8219 }, // Nairobi
+            zoom: 12,
+            styles: [
+                {
+                    "featureType": "administrative",
+                    "elementType": "labels.text.fill",
+                    "stylers": [{"color": "#444444"}]
+                },
+                {
+                    "featureType": "landscape",
+                    "elementType": "all",
+                    "stylers": [{"color": "#f2f2f2"}]
+                },
+                {
+                    "featureType": "poi",
+                    "elementType": "all",
+                    "stylers": [{"visibility": "off"}]
+                },
+                {
+                    "featureType": "road",
+                    "elementType": "all",
+                    "stylers": [{"saturation": -100}, {"lightness": 45}]
+                }
+            ]
+        });
+    }
+
+    // Add job markers
+    {% if current_job and current_job.current_location_lat and current_job.current_location_lng %}
+        // Current job marker
+        if (map) {
+            const currentJobMarker = new google.maps.Marker({
+                position: { 
+                    lat: parseFloat("{{ current_job.current_location_lat }}"), 
+                    lng: parseFloat("{{ current_job.current_location_lng }}") 
+                },
+                map: map,
+                icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                title: 'Current Job'
+            });
+        }
+    {% endif %}
+
+    {% for job in available_jobs %}
+        {% if job.pickup_location_lat and job.pickup_location_lng %}
+            if (map) {
+                const jobMarker = new google.maps.Marker({
+                    position: { 
+                        lat: parseFloat("{{ job.pickup_location_lat }}"), 
+                        lng: parseFloat("{{ job.pickup_location_lng }}") 
+                    },
+                    map: map,
+                    title: "{{ job.tracking_id }}"
+                });
+            }
+        {% endif %}
+    {% endfor %}
+
+    // Initialize weekly earnings chart
+    {% if weekly_data and weekly_data != '[]' %}
+    if (document.getElementById('weeklyChart')) {
+        const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+        const weeklyLabels = JSON.parse('{{ weekly_labels|escapejs }}');
+        const weeklyData = JSON.parse('{{ weekly_data|escapejs }}');
+        
+        new Chart(weeklyCtx, {
+            type: 'bar',
+            data: {
+                labels: weeklyLabels,
+                datasets: [{
+                    label: 'Daily Earnings',
+                    data: weeklyData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+
+    // Initialize monthly earnings chart
+    {% if monthly_data and monthly_data != '[]' %}
+    if (document.getElementById('monthlyChart')) {
+        const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+        const monthlyLabels = JSON.parse('{{ monthly_labels|escapejs }}');
+        const monthlyData = JSON.parse('{{ monthly_data|escapejs }}');
+        
+        new Chart(monthlyCtx, {
+            type: 'line',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'Daily Earnings',
+                    data: monthlyData,
+                    fill: false,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+});
+
+function acceptJob(jobId) {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (!csrfToken) return;
+
+    fetch(`/api/jobs/${jobId}/accept/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken.value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function updateJobStatus(jobId) {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (!csrfToken) return;
+
+    fetch(`/api/jobs/${jobId}/update-status/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken.value
+        },
+        body: JSON.stringify({
+            status: 'DELIVERED'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}

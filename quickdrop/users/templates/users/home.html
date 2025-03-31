@@ -4,63 +4,270 @@
 {% block title %}Home - QuickDrop{% endblock %}
 
 {% block content %}
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="#">QuickDrop</a>
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'home' %}">
+            <img src="{% static 'img/logo.png' %}" alt="QuickDrop" height="40" class="me-2">
+    
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'about' %}">About</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'contacts' %}">Contact</a>
+                    <a class="nav-link" href="{% url 'contact' %}">Contact</a>
                 </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        <i data-lucide="user-circle" class="me-1"></i> {{ user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Logout</a></li>
+                    </ul>
+                </li>
+                {% else %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'login' %}">Login</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item ms-2">
                     <a class="btn btn-success" href="{% url 'register' %}">Sign Up</a>
                 </li>
+                {% endif %}
             </ul>
         </div>
     </div>
 </nav>
 
 <!-- Hero Section -->
-<header class="container text-center py-5">
-    <h1 class="fw-bold">Fast, Reliable, and Secure Deliveries</h1>
-    <p class="text-muted">Deliver packages or get your items delivered with ease</p>
-    <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Get Started</a>
+<header class="container-fluid py-5 bg-success text-white position-relative overflow-hidden">
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-center text-lg-start">
+                <h1 class="display-4 fw-bold mb-4">Fast, Reliable, and Secure Deliveries</h1>
+                <p class="lead mb-4">Experience seamless package delivery with real-time tracking and secure handling.</p>
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
+                    <a href="{% url 'register' %}" class="btn btn-light btn-lg">Get Started</a>
+                    <a href="{% url 'about' %}" class="btn btn-outline-light btn-lg">Learn More</a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block text-center">
+                <div class="hero-image-container">
+                    <img src="{% static 'images/login_image.jpeg' %}" alt="Delivery Service" class="img-fluid hero-image">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="position-absolute top-0 end-0 w-50 h-100 bg-pattern opacity-10"></div>
 </header>
 
-<!-- Services Section -->
+<!-- Features Section -->
 <section class="container py-5">
-    <div class="row text-center">
+    <div class="text-center mb-5">
+        <h2 class="display-6 fw-bold">Why Choose QuickDrop?</h2>
+        <p class="lead text-muted">We make package delivery simple, fast, and secure</p>
+    </div>
+    <div class="row g-4">
         <div class="col-md-4">
-            <i data-lucide="package" class="icon-lg"></i>
-            <h3>Fast Deliveries</h3>
-            <p>We ensure your packages arrive on time, every time.</p>
+            <div class="card h-100 border-0 shadow-sm hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-success bg-gradient text-white rounded-circle mb-3">
+                        <i data-lucide="package" class="icon-lg"></i>
+                    </div>
+                    <h3 class="h4">Fast Deliveries</h3>
+                    <p class="text-muted">We ensure your packages arrive on time, every time with our optimized delivery network.</p>
+                </div>
+            </div>
         </div>
         <div class="col-md-4">
-            <i data-lucide="truck" class="icon-lg"></i>
-            <h3>Reliable Workers</h3>
-            <p>Trusted delivery personnel for safe package handling.</p>
+            <div class="card h-100 border-0 shadow-sm hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-success bg-gradient text-white rounded-circle mb-3">
+                        <i data-lucide="truck" class="icon-lg"></i>
+                    </div>
+                    <h3 class="h4">Reliable Workers</h3>
+                    <p class="text-muted">Our verified delivery personnel ensure safe and professional package handling.</p>
+                </div>
+            </div>
         </div>
         <div class="col-md-4">
-            <i data-lucide="shield-check" class="icon-lg"></i>
-            <h3>Secure Transactions</h3>
-            <p>End-to-end security for all your deliveries.</p>
+            <div class="card h-100 border-0 shadow-sm hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-success bg-gradient text-white rounded-circle mb-3">
+                        <i data-lucide="shield-check" class="icon-lg"></i>
+                    </div>
+                    <h3 class="h4">Secure Transactions</h3>
+                    <p class="text-muted">End-to-end security for all your deliveries with real-time tracking and insurance.</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
+<!-- How It Works Section -->
+<section class="container-fluid bg-light py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold">How It Works</h2>
+            <p class="lead text-muted">Simple steps to get your package delivered</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="step-number mb-3">1</div>
+                    <h4>Sign Up</h4>
+                    <p class="text-muted">Create your free account in minutes</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="step-number mb-3">2</div>
+                    <h4>Book Delivery</h4>
+                    <p class="text-muted">Enter package and delivery details</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="step-number mb-3">3</div>
+                    <h4>Track Package</h4>
+                    <p class="text-muted">Monitor delivery progress in real-time</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="step-number mb-3">4</div>
+                    <h4>Delivery Complete</h4>
+                    <p class="text-muted">Package safely delivered to destination</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <h2 class="display-6 fw-bold mb-4">Ready to Get Started?</h2>
+            <p class="lead text-muted mb-4">Join thousands of satisfied customers who trust QuickDrop for their delivery needs.</p>
+            <a href="{% url 'register' %}" class="btn btn-success btn-lg px-5">Create Free Account</a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="container-fluid bg-dark text-light py-4">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h5 class="mb-3">QuickDrop</h5>
+                <p class="text-muted">Fast, reliable, and secure package delivery services for everyone.</p>
+            </div>
+            <div class="col-md-2">
+                <h5 class="mb-3">Company</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'about' %}" class="text-muted text-decoration-none">About</a></li>
+                    <li><a href="{% url 'careers' %}" class="text-muted text-decoration-none">Careers</a></li>
+                    <li><a href="{% url 'contact' %}" class="text-muted text-decoration-none">Contact</a></li>
+                </ul>
+            </div>
+            <div class="col-md-2">
+                <h5 class="mb-3">Resources</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'resources' %}" class="text-muted text-decoration-none">Help Center</a></li>
+                    <li><a href="{% url 'terms' %}" class="text-muted text-decoration-none">Terms</a></li>
+                    <li><a href="{% url 'privacy' %}" class="text-muted text-decoration-none">Privacy</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5 class="mb-3">Newsletter</h5>
+                <p class="text-muted">Subscribe for updates and special offers</p>
+                <form class="newsletter-form" id="newsletterForm">
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Enter your email" required>
+                        <button class="btn btn-success" type="submit">Subscribe</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <hr class="my-4 bg-secondary">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start">
+                <p class="mb-0 text-muted">&copy; {% now "Y" %} QuickDrop. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <div class="social-links">
+                    <a href="#" class="text-muted text-decoration-none me-3"><i data-lucide="facebook"></i></a>
+                    <a href="#" class="text-muted text-decoration-none me-3"><i data-lucide="twitter"></i></a>
+                    <a href="#" class="text-muted text-decoration-none me-3"><i data-lucide="instagram"></i></a>
+                    <a href="#" class="text-muted text-decoration-none"><i data-lucide="linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+.hero-image-container {
+    height: 500px;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.3s ease;
+}
+
+.hero-image:hover {
+    transform: scale(1.05);
+}
+</style>
+
+{% block extra_scripts %}
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Initialize Lucide icons
         lucide.createIcons();
+
+        // Newsletter form submission
+        const newsletterForm = document.getElementById('newsletterForm');
+        if (newsletterForm) {
+            newsletterForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = this.querySelector('input[type="email"]').value;
+                // Add your newsletter subscription logic here
+                alert('Thank you for subscribing! We\'ll keep you updated.');
+                this.reset();
+            });
+        }
+
+        // Add hover effect to cards
+        const cards = document.querySelectorAll('.hover-lift');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px)';
+                card.style.transition = 'transform 0.3s ease';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
     });
 </script>
+{% endblock %}
 
 {% endblock %}

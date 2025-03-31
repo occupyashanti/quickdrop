@@ -15,49 +15,154 @@
         <h3>QuickDrop</h3>
         <ul class="nav flex-column mt-4">
             <li class="nav-item">
-                <a class="nav-link text-white" href="#">Dashboard</a>
+                <a class="nav-link text-white {% if active_tab == 'overview' %}active{% endif %}" href="{% url 'dashboard' %}">
+                    <i data-lucide="layout-dashboard"></i>
+                    Dashboard
+                </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white" href="#">Orders</a>
+                <a class="nav-link text-white {% if active_tab == 'deliveries' %}active{% endif %}" href="{% url 'my_deliveries' %}">
+                    <i data-lucide="package"></i>
+                    My Deliveries
+                </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white" href="#">Earnings</a>
+                <a class="nav-link text-white" href="{% url 'new_delivery' %}">
+                    <i data-lucide="plus-circle"></i>
+                    New Delivery
+                </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white" href="#">Profile</a>
+                <a class="nav-link text-white {% if active_tab == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
+                    <i data-lucide="user"></i>
+                    Profile
+                </a>
             </li>
             <li class="nav-item mt-3">
-                <a class="btn btn-danger w-100" href="{% url 'logout' %}">Logout</a>
+                <a class="btn btn-danger w-100" href="{% url 'logout' %}">
+                    <i data-lucide="log-out"></i>
+                    Logout
+                </a>
             </li>
         </ul>
     </nav>
 
     <!-- Main Content -->
     <div class="container-fluid p-4">
-        <h2>Dashboard Overview</h2>
-        <div class="row mt-4">
+        {% if messages %}
+        <div class="messages mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Overview Cards -->
+        <div class="row mb-4">
             <div class="col-md-4">
-                <div class="card p-3 shadow-sm">
-                    <h5>Total Orders</h5>
-                    <p class="fs-3">120</p>
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Pending Deliveries</h6>
+                        <h3 class="mb-0">{{ pending_deliveries.count }}</h3>
+                    </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card p-3 shadow-sm">
-                    <h5>Pending Deliveries</h5>
-                    <p class="fs-3">15</p>
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">In Transit</h6>
+                        <h3 class="mb-0">{{ in_transit_deliveries.count }}</h3>
+                    </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card p-3 shadow-sm">
-                    <h5>Total Earnings</h5>
-                    <p class="fs-3">$1,250</p>
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Total Earnings</h6>
+                        <h3 class="mb-0">KES {{ total_earnings|default:"0" }}</h3>
+                    </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Recent Deliveries -->
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title mb-0">Recent Deliveries</h5>
+                    <a href="{% url 'my_deliveries' %}" class="btn btn-primary btn-sm">
+                        View All
+                    </a>
+                </div>
+
+                {% if active_deliveries %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Status</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for delivery in active_deliveries %}
+                            <tr>
+                                <td>
+                                    <strong>#{{ delivery.order_id }}</strong><br>
+                                    <small class="text-muted">{{ delivery.created_at|date:"M d, Y" }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge {% if delivery.status == 'DELIVERED' %}bg-success{% elif delivery.status == 'IN_TRANSIT' %}bg-warning{% elif delivery.status == 'CANCELLED' %}bg-danger{% else %}bg-primary{% endif %}">
+                                        {{ delivery.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ delivery.pickup_city }}</td>
+                                <td>{{ delivery.delivery_city }}</td>
+                                <td>KES {{ delivery.amount }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'delivery_tracking' tracking_id=delivery.tracking_id %}" class="btn btn-sm btn-outline-primary">
+                                            <i data-lucide="map-pin"></i> Track
+                                        </a>
+                                        <a href="{% url 'delivery_detail' delivery_id=delivery.id %}" class="btn btn-sm btn-outline-secondary">
+                                            <i data-lucide="file-text"></i> Details
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <img src="{% static 'img/empty-box.svg' %}" alt="No deliveries" class="mb-3" style="width: 120px;">
+                    <h5>No Active Deliveries</h5>
+                    <p class="text-muted">Create your first delivery to get started!</p>
+                    <a href="{% url 'new_delivery' %}" class="btn btn-primary">
+                        <i data-lucide="plus"></i> Create Delivery
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Lucide icons
+        lucide.createIcons();
+    });
+</script>
 </body>
 </html>

@@ -1,0 +1,262 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block title %}About Us - QuickDrop{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-pattern py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 animate-fade-in">
+                <h1 class="display-4 fw-bold mb-4">Our Story</h1>
+                <p class="lead mb-4">QuickDrop was founded with a simple mission: to make package delivery as easy as a click. We're revolutionizing the way people send and receive packages.</p>
+                <button class="btn btn-primary btn-lg" onclick="document.getElementById('mission').scrollIntoView({behavior: 'smooth'})">
+                    Learn More
+                    <i data-lucide="arrow-down" class="ms-2"></i>
+                </button>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block animate-fade-in">
+                <img src="{% static 'images/about-hero.svg' %}" alt="About QuickDrop" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission Section -->
+<section id="mission" class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card hover-lift h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-success bg-opacity-10 rounded-circle mb-3">
+                            <i data-lucide="target" class="text-success"></i>
+                        </div>
+                        <h3 class="h4 mb-3">Our Mission</h3>
+                        <p class="text-muted mb-0">To provide the fastest, most reliable, and most convenient delivery service for our customers.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card hover-lift h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-success bg-opacity-10 rounded-circle mb-3">
+                            <i data-lucide="eye" class="text-success"></i>
+                        </div>
+                        <h3 class="h4 mb-3">Our Vision</h3>
+                        <p class="text-muted mb-0">To become the world's most trusted and efficient delivery platform, connecting people and businesses seamlessly.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card hover-lift h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-success bg-opacity-10 rounded-circle mb-3">
+                            <i data-lucide="heart" class="text-success"></i>
+                        </div>
+                        <h3 class="h4 mb-3">Our Values</h3>
+                        <p class="text-muted mb-0">Trust, reliability, innovation, and customer satisfaction are at the heart of everything we do.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-3 col-6">
+                <div class="stat-card hover-lift bg-white rounded shadow-sm p-4">
+                    <h3 class="counter" data-target="50000">0</h3>
+                    <p class="text-muted">Deliveries Completed</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card hover-lift bg-white rounded shadow-sm p-4">
+                    <h3 class="counter" data-target="10000">0</h3>
+                    <p class="text-muted">Happy Customers</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card hover-lift bg-white rounded shadow-sm p-4">
+                    <h3 class="counter" data-target="100">0</h3>
+                    <p class="text-muted">Cities Covered</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card hover-lift bg-white rounded shadow-sm p-4">
+                    <h3 class="counter" data-target="500">0</h3>
+                    <p class="text-muted">Team Members</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Meet Our Leadership Team</h2>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card team-card hover-lift border-0 shadow-sm">
+                    <img src="{% static 'images/team1.jpg' %}" class="card-img-top" alt="Team Member">
+                    <div class="card-body text-center">
+                        <h5 class="card-title mb-1">Sarah Johnson</h5>
+                        <p class="text-muted small mb-3">Chief Executive Officer</p>
+                        <div class="social-links">
+                            <a href="#" class="text-muted me-2"><i data-lucide="linkedin" class="icon-sm"></i></a>
+                            <a href="#" class="text-muted"><i data-lucide="twitter" class="icon-sm"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card team-card hover-lift border-0 shadow-sm">
+                    <img src="{% static 'images/team2.jpg' %}" class="card-img-top" alt="Team Member">
+                    <div class="card-body text-center">
+                        <h5 class="card-title mb-1">Michael Chen</h5>
+                        <p class="text-muted small mb-3">Chief Technology Officer</p>
+                        <div class="social-links">
+                            <a href="#" class="text-muted me-2"><i data-lucide="linkedin" class="icon-sm"></i></a>
+                            <a href="#" class="text-muted"><i data-lucide="twitter" class="icon-sm"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card team-card hover-lift border-0 shadow-sm">
+                    <img src="{% static 'images/team3.jpg' %}" class="card-img-top" alt="Team Member">
+                    <div class="card-body text-center">
+                        <h5 class="card-title mb-1">Emily Rodriguez</h5>
+                        <p class="text-muted small mb-3">Chief Operations Officer</p>
+                        <div class="social-links">
+                            <a href="#" class="text-muted me-2"><i data-lucide="linkedin" class="icon-sm"></i></a>
+                            <a href="#" class="text-muted"><i data-lucide="twitter" class="icon-sm"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card team-card hover-lift border-0 shadow-sm">
+                    <img src="{% static 'images/team4.jpg' %}" class="card-img-top" alt="Team Member">
+                    <div class="card-body text-center">
+                        <h5 class="card-title mb-1">David Thompson</h5>
+                        <p class="text-muted small mb-3">Chief Marketing Officer</p>
+                        <div class="social-links">
+                            <a href="#" class="text-muted me-2"><i data-lucide="linkedin" class="icon-sm"></i></a>
+                            <a href="#" class="text-muted"><i data-lucide="twitter" class="icon-sm"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Timeline Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Our Journey</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h4>2020</h4>
+                    <p>QuickDrop was founded with a vision to revolutionize package delivery</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h4>2021</h4>
+                    <p>Expanded operations to 50 cities and launched mobile app</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h4>2022</h4>
+                    <p>Achieved 1 million successful deliveries milestone</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h4>2023</h4>
+                    <p>Introduced same-day delivery and expanded to international markets</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h4>2024</h4>
+                    <p>Launched sustainable delivery initiative and AI-powered routing</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5">
+    <div class="container text-center">
+        <h2 class="mb-4">Ready to Get Started?</h2>
+        <p class="lead mb-4">Join thousands of satisfied customers who trust QuickDrop for their delivery needs.</p>
+        <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Sign Up Now</a>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Counter Animation
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200;
+
+    const animateCounter = (counter) => {
+        const target = +counter.getAttribute('data-target');
+        let count = 0;
+        const increment = target / speed;
+
+        const updateCount = () => {
+            count += increment;
+            if (count < target) {
+                counter.innerText = Math.ceil(count);
+                requestAnimationFrame(updateCount);
+            } else {
+                counter.innerText = target;
+            }
+        };
+
+        updateCount();
+    };
+
+    // Intersection Observer for counters
+    const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                counterObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    counters.forEach(counter => counterObserver.observe(counter));
+
+    // Timeline Animation
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    
+    const timelineObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('show');
+                timelineObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    timelineItems.forEach(item => timelineObserver.observe(item));
+});
+</script>
+{% endblock %}

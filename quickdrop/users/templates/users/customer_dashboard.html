@@ -1,0 +1,560 @@
+{% extends "users/dashboard_base.html" %}
+{% load static %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 rounded-4 bg-light">
+                <div class="card-body p-4">
+                    <h2 class="mb-2 fw-bold">Welcome back, {{ request.user.first_name }}!</h2>
+                    <p class="text-muted">Here's an overview of your deliveries and their current status.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="row g-4 mb-4">
+        <div class="col-sm-6 col-md-3">
+            <div class="stat-card shadow-sm rounded-4 p-3 h-100 border-start border-primary border-4">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-primary-subtle me-3 rounded-circle p-3">
+                        <i data-lucide="package" class="text-primary"></i>
+                    </div>
+                    <div>
+                        <h3 class="mb-0 fw-bold">{{ active_deliveries.count }}</h3>
+                        <p class="text-muted mb-0 small">Active Deliveries</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="stat-card shadow-sm rounded-4 p-3 h-100 border-start border-success border-4">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-success-subtle me-3 rounded-circle p-3">
+                        <i data-lucide="check-circle" class="text-success"></i>
+                    </div>
+                    <div>
+                        <h3 class="mb-0 fw-bold">{{ completed_deliveries.count }}</h3>
+                        <p class="text-muted mb-0 small">Completed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="stat-card shadow-sm rounded-4 p-3 h-100 border-start border-warning border-4">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-warning-subtle me-3 rounded-circle p-3">
+                        <i data-lucide="clock" class="text-warning"></i>
+                    </div>
+                    <div>
+                        <h3 class="mb-0 fw-bold">{{ pending_deliveries.count }}</h3>
+                        <p class="text-muted mb-0 small">Pending</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="stat-card shadow-sm rounded-4 p-3 h-100 border-start border-info border-4">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-info-subtle me-3 rounded-circle p-3">
+                        <i data-lucide="truck" class="text-info"></i>
+                    </div>
+                    <div>
+                        <h3 class="mb-0 fw-bold">{{ in_transit_deliveries.count }}</h3>
+                        <p class="text-muted mb-0 small">In Transit</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Quick Actions</h5>
+                    <div class="d-flex gap-3">
+                        <a href="{% url 'new_delivery' %}" class="btn btn-primary">
+                            <i data-lucide="package-plus"></i> New Delivery
+                        </a>
+                        <a href="{% url 'my_deliveries' %}" class="btn btn-outline-primary">
+                            <i data-lucide="list"></i> View All Deliveries
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Deliveries -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white py-3 border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0 fw-bold">Active Deliveries</h5>
+                        <a href="{% url 'new_delivery' %}" class="btn btn-sm btn-primary rounded-pill shadow-sm">
+                            <i data-lucide="plus" class="me-1" style="width: 16px; height: 16px;"></i> New Delivery
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if active_deliveries %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="fw-semibold">Tracking ID</th>
+                                        <th class="fw-semibold">Recipient</th>
+                                        <th class="fw-semibold">Status</th>
+                                        <th class="fw-semibold">Location</th>
+                                        <th class="fw-semibold">ETA</th>
+                                        <th class="fw-semibold">Worker</th>
+                                        <th class="fw-semibold">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for delivery in active_deliveries %}
+                                    <tr>
+                                        <td>{{ delivery.tracking_id }}</td>
+                                        <td>{{ delivery.recipient_name }}</td>
+                                        <td>
+                                            <span class="badge rounded-pill px-3 py-2 {% if delivery.status == 'DELIVERED' %}bg-success{% elif delivery.status == 'IN_TRANSIT' %}bg-info{% elif delivery.status == 'PICKED_UP' %}bg-primary{% elif delivery.status == 'ASSIGNED' %}bg-secondary{% else %}bg-warning{% endif %}">
+                                                <i data-lucide="{% if delivery.status == 'DELIVERED' %}check-circle{% elif delivery.status == 'IN_TRANSIT' %}truck{% elif delivery.status == 'PICKED_UP' %}package{% elif delivery.status == 'ASSIGNED' %}user-check{% else %}clock{% endif %}" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                {{ delivery.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ delivery.current_location }}</td>
+                                        <td>{{ delivery.estimated_delivery_time }}</td>
+                                        <td>
+                                            {% if delivery.assigned_driver %}
+                                                <div class="d-flex align-items-center">
+                                                    {{ delivery.assigned_driver.get_full_name }}
+                                                    {% if delivery.status == 'DELIVERED' and not delivery.worker_rating %}
+                                                        <button class="btn btn-sm btn-link ms-2" data-bs-toggle="modal" data-bs-target="#rateWorkerModal{{ delivery.id }}">
+                                                            <i data-lucide="star" class="text-warning"></i> Rate
+                                                        </button>
+                                                    {% elif delivery.worker_rating %}
+                                                        <div class="ms-2">
+                                                            {% for i in "12345"|make_list %}
+                                                                <i data-lucide="star" class="{% if forloop.counter <= delivery.worker_rating %}text-warning{% else %}text-muted{% endif %}" style="width: 16px; height: 16px;"></i>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <!-- Rating Modal -->
+                                                {% if delivery.status == 'DELIVERED' and not delivery.worker_rating %}
+                                                <div class="modal fade" id="rateWorkerModal{{ delivery.id }}" tabindex="-1">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Rate {{ delivery.assigned_driver.get_full_name }}</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <form method="POST" action="{% url 'rate_worker' delivery.id %}">
+                                                                {% csrf_token %}
+                                                                <div class="modal-body">
+                                                                    <div class="rating-stars text-center mb-4">
+                                                                        {% for i in "12345"|make_list %}
+                                                                        <input type="radio" name="rating" value="{{ forloop.counter }}" id="star{{ delivery.id }}{{ forloop.counter }}" class="d-none">
+                                                                        <label for="star{{ delivery.id }}{{ forloop.counter }}" class="star-label">
+                                                                            <i data-lucide="star" class="text-muted"></i>
+                                                                        </label>
+                                                                        {% endfor %}
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Comments (optional)</label>
+                                                                        <textarea name="comment" class="form-control" rows="3" placeholder="Share your experience with the delivery worker..."></textarea>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="submit" class="btn btn-primary">Submit Rating</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-muted">Unassigned</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a href="{% url 'delivery_detail' delivery.id %}" class="btn btn-sm btn-primary rounded-pill shadow-sm">
+                                                    <i data-lucide="eye" style="width: 16px; height: 16px;"></i> View
+                                                </a>
+                                                {% if delivery.status != 'DELIVERED' and delivery.status != 'CANCELLED' %}
+                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-bs-toggle="modal" data-bs-target="#cancelDeliveryModal{{ delivery.id }}">
+                                                    <i data-lucide="x" style="width: 16px; height: 16px;"></i> Cancel
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <img src="{% static 'users/img/empty-deliveries.svg' %}" alt="No deliveries" class="mb-4" style="max-width: 200px; opacity: 0.8;">
+                            <h5 class="text-muted mb-3">No Active Deliveries</h5>
+                            <p class="text-muted mb-4">Start by creating a new delivery request</p>
+                            <a href="{% url 'new_delivery' %}" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                                <i data-lucide="package-plus" class="me-2" style="width: 18px; height: 18px;"></i> New Delivery
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Deliveries -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Completed Deliveries</h5>
+                    {% if completed_deliveries %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tracking ID</th>
+                                        <th>Recipient</th>
+                                        <th>Delivery Location</th>
+                                        <th>Completed On</th>
+                                        <th>Driver</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for delivery in completed_deliveries %}
+                                    <tr>
+                                        <td>{{ delivery.tracking_id }}</td>
+                                        <td>{{ delivery.recipient_name }}</td>
+                                        <td>{{ delivery.delivery_address }}</td>
+                                        <td>{{ delivery.delivery_time|date:"M d, Y" }} at {{ delivery.delivery_time|time:"h:i A" }}</td>
+                                        <td>
+                                            {% if delivery.assigned_driver %}
+                                                <div class="d-flex align-items-center">
+                                                    {{ delivery.assigned_driver.get_full_name }}
+                                                    {% if not delivery.worker_rating %}
+                                                        <button class="btn btn-sm btn-link ms-2" data-bs-toggle="modal" data-bs-target="#rateWorkerModal{{ delivery.id }}">
+                                                            <i data-lucide="star" class="text-warning"></i> Rate
+                                                        </button>
+                                                    {% elif delivery.worker_rating %}
+                                                        <div class="ms-2">
+                                                            {% for i in "12345"|make_list %}
+                                                                <i data-lucide="star" class="{% if forloop.counter <= delivery.worker_rating %}text-warning{% else %}text-muted{% endif %}" style="width: 16px; height: 16px;"></i>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">Unassigned</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge rounded-pill px-3 py-2 bg-success">
+                                                <i data-lucide="check-circle" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                Delivered
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a href="{% url 'delivery_detail' delivery.id %}" class="btn btn-sm btn-primary rounded-pill shadow-sm">
+                                                    <i data-lucide="eye" style="width: 16px; height: 16px;"></i> View
+                                                </a>
+                                                {% if delivery.status != 'DELIVERED' and delivery.status != 'CANCELLED' %}
+                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-bs-toggle="modal" data-bs-target="#cancelDeliveryModal{{ delivery.id }}">
+                                                    <i data-lucide="x" style="width: 16px; height: 16px;"></i> Cancel
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <img src="{% static 'users/img/empty-deliveries.svg' %}" alt="No deliveries" class="mb-4" style="max-width: 200px; opacity: 0.8;">
+                            <h5 class="text-muted mb-3">No Completed Deliveries</h5>
+                            <p class="text-muted mb-4">Your completed deliveries will appear here once your orders are delivered</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancelled Deliveries -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Cancelled Deliveries</h5>
+                    {% if cancelled_deliveries %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tracking ID</th>
+                                        <th>Recipient</th>
+                                        <th>Pickup Location</th>
+                                        <th>Delivery Location</th>
+                                        <th>Created On</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for delivery in cancelled_deliveries %}
+                                    <tr>
+                                        <td>{{ delivery.tracking_id }}</td>
+                                        <td>{{ delivery.recipient_name }}</td>
+                                        <td>{{ delivery.pickup_address }}</td>
+                                        <td>{{ delivery.delivery_address }}</td>
+                                        <td>{{ delivery.created_at|date:"M d, Y" }} at {{ delivery.created_at|time:"h:i A" }}</td>
+                                        <td>
+                                            <span class="badge rounded-pill px-3 py-2 bg-danger">
+                                                <i data-lucide="x-circle" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                Cancelled
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a href="{% url 'delivery_detail' delivery.id %}" class="btn btn-sm btn-primary rounded-pill shadow-sm">
+                                                    <i data-lucide="eye" style="width: 16px; height: 16px;"></i> View
+                                                </a>
+                                                {% if delivery.status != 'DELIVERED' and delivery.status != 'CANCELLED' %}
+                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-bs-toggle="modal" data-bs-target="#cancelDeliveryModal{{ delivery.id }}">
+                                                    <i data-lucide="x" style="width: 16px; height: 16px;"></i> Cancel
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <img src="{% static 'users/img/empty-deliveries.svg' %}" alt="No deliveries" class="mb-4" style="max-width: 200px; opacity: 0.8;">
+                            <h5 class="text-muted mb-3">No Cancelled Deliveries</h5>
+                            <p class="text-muted mb-4">You don't have any cancelled deliveries at this time</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delivery Map -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-white py-3 border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0 fw-bold">Delivery Map</h5>
+                        <span class="badge rounded-pill bg-light text-dark px-3 py-2">
+                            <i data-lucide="map-pin" class="me-1" style="width: 14px; height: 14px;"></i>
+                            Live Tracking
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div id="deliveryMap" style="height: 450px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.rating-stars {
+    font-size: 24px;
+}
+
+.star-label {
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.star-label:hover i,
+.star-label:hover ~ label i {
+    color: #ffc107 !important;
+}
+
+input[type="radio"]:checked + label i,
+input[type="radio"]:checked ~ label i {
+    color: #ffc107 !important;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize delivery map if the element exists
+    const mapElement = document.getElementById('deliveryMap');
+    
+    if (mapElement) {
+        const map = new google.maps.Map(mapElement, {
+            center: { lat: -1.2921, lng: 36.8219 }, // Nairobi
+            zoom: 12
+        });
+
+        // Add delivery markers
+        // Using JavaScript array to store delivery locations
+        const deliveryLocations = [];
+        {% for delivery in active_deliveries %}
+            {% if delivery.current_location_lat and delivery.current_location_lng %}
+                deliveryLocations.push({
+                    lat: parseFloat('{{ delivery.current_location_lat|escapejs }}'),
+                    lng: parseFloat('{{ delivery.current_location_lng|escapejs }}'),
+                    title: '{{ delivery.tracking_id|escapejs }}'
+                });
+            {% endif %}
+        {% endfor %}
+        
+        // Create markers for each delivery location
+        deliveryLocations.forEach(function(location) {
+            new google.maps.Marker({
+                position: { lat: location.lat, lng: location.lng },
+                map: map,
+                title: location.title
+            });
+        });
+    }
+
+    // Initialize rating stars
+    document.querySelectorAll('.rating-stars').forEach(container => {
+        container.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const stars = container.querySelectorAll('.star-label i');
+                stars.forEach((star, index) => {
+                    if (index < this.value) {
+                        star.classList.remove('text-muted');
+                        star.classList.add('text-warning');
+                    } else {
+                        star.classList.remove('text-warning');
+                        star.classList.add('text-muted');
+                    }
+                });
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
+
+<!-- Rating Modals for Completed Deliveries -->
+{% for delivery in completed_deliveries %}
+{% if delivery.assigned_driver and not delivery.worker_rating %}
+<div class="modal fade" id="rateWorkerModal{{ delivery.id }}" tabindex="-1" aria-labelledby="rateWorkerModalLabel{{ delivery.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rateWorkerModalLabel{{ delivery.id }}">Rate {{ delivery.assigned_driver.get_full_name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'rate_worker' delivery.id %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>How would you rate your experience with {{ delivery.assigned_driver.get_full_name }}?</p>
+                    <div class="rating-stars text-center mb-4">
+                        <input type="radio" id="star5-{{ delivery.id }}" name="rating" value="5" class="d-none" />
+                        <label for="star5-{{ delivery.id }}" class="star-label"><i data-lucide="star" class="text-muted"></i></label>
+                        
+                        <input type="radio" id="star4-{{ delivery.id }}" name="rating" value="4" class="d-none" />
+                        <label for="star4-{{ delivery.id }}" class="star-label"><i data-lucide="star" class="text-muted"></i></label>
+                        
+                        <input type="radio" id="star3-{{ delivery.id }}" name="rating" value="3" class="d-none" />
+                        <label for="star3-{{ delivery.id }}" class="star-label"><i data-lucide="star" class="text-muted"></i></label>
+                        
+                        <input type="radio" id="star2-{{ delivery.id }}" name="rating" value="2" class="d-none" />
+                        <label for="star2-{{ delivery.id }}" class="star-label"><i data-lucide="star" class="text-muted"></i></label>
+                        
+                        <input type="radio" id="star1-{{ delivery.id }}" name="rating" value="1" class="d-none" />
+                        <label for="star1-{{ delivery.id }}" class="star-label"><i data-lucide="star" class="text-muted"></i></label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comment-{{ delivery.id }}" class="form-label">Additional Comments (Optional)</label>
+                        <textarea class="form-control" id="comment-{{ delivery.id }}" name="comment" rows="3" placeholder="Share your experience..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Rating</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<!-- Rating Modals for Active Deliveries -->
+{% for delivery in active_deliveries %}
+{% if delivery.worker and delivery.status == 'DELIVERED' and not delivery.worker_rating %}
+<div class="modal fade" id="rateWorkerModal{{ delivery.id }}" tabindex="-1" aria-labelledby="rateWorkerModalLabel{{ delivery.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rateWorkerModalLabel{{ delivery.id }}">Rate {{ delivery.worker.get_full_name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'rate_worker' delivery.id %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>How would you rate your experience with {{ delivery.worker.get_full_name }}?</p>
+                    <div class="rating-stars text-center mb-4">
+                        <input type="radio" id="star5-{{ delivery.id }}" name="rating" value="5" class="d-none" />
+                        <label for="star5-{{ delivery.id }}" class="star-label"><i data-lucide="star" class="text-muted"></i></label>
+                        
+                        <input type="radio" id="star4-{{ delivery.id }}" name="rating" value="4" class="d-none" />
+                        <label for="star4-{{ delivery.id }}" class="star-label"><i data-lucide="star" class="text-muted"></i></label>
+                        
+                        <input type="radio" id="star3-{{ delivery.id }}" name="rating" value="3" class="d-none" />
+                        <label for="star3-{{ delivery.id }}" class="star-label"><i data-lucide="star" class="text-muted"></i></label>
+                        
+                        <input type="radio" id="star2-{{ delivery.id }}" name="rating" value="2" class="d-none" />
+                        <label for="star2-{{ delivery.id }}" class="star-label"><i data-lucide="star" class="text-muted"></i></label>
+                        
+                        <input type="radio" id="star1-{{ delivery.id }}" name="rating" value="1" class="d-none" />
+                        <label for="star1-{{ delivery.id }}" class="star-label"><i data-lucide="star" class="text-muted"></i></label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comment-{{ delivery.id }}" class="form-label">Additional Comments (Optional)</label>
+                        <textarea class="form-control" id="comment-{{ delivery.id }}" name="comment" rows="3" placeholder="Share your experience..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Rating</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+{% endblock %}

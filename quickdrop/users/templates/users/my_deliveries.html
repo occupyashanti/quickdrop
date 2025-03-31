@@ -1,0 +1,268 @@
+{% extends "users/dashboard_base.html" %}
+{% load static %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    {% csrf_token %}
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Delivery Status Tabs -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <ul class="nav nav-pills mb-3" id="deliveryTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="active-tab" data-bs-toggle="pill" data-bs-target="#active" type="button">
+                        Active Deliveries
+                        <span class="badge bg-primary ms-2">{{ active_deliveries.count }}</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="completed-tab" data-bs-toggle="pill" data-bs-target="#completed" type="button">
+                        Completed
+                        <span class="badge bg-success ms-2">{{ completed_deliveries.count }}</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="cancelled-tab" data-bs-toggle="pill" data-bs-target="#cancelled" type="button">
+                        Cancelled
+                        <span class="badge bg-danger ms-2">{{ cancelled_deliveries.count }}</span>
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="deliveryTabsContent">
+                <!-- Active Deliveries -->
+                <div class="tab-pane fade show active" id="active">
+                    {% if active_deliveries %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Order Details</th>
+                                    <th>Package Info</th>
+                                    <th>Locations</th>
+                                    <th>Status</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for delivery in active_deliveries %}
+                                <tr>
+                                    <td>
+                                        <strong>#{{ delivery.order_id }}</strong><br>
+                                        <small class="text-muted">{{ delivery.created_at|date:"M d, Y" }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary text-capitalize">{{ delivery.package_type }}</span><br>
+                                        <small>{{ delivery.package_description|truncatechars:50 }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i data-lucide="arrow-up" class="me-2 text-success"></i>
+                                            <small>{{ delivery.pickup_city }}, {{ delivery.pickup_area }}</small>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i data-lucide="arrow-down" class="me-2 text-danger"></i>
+                                            <small>{{ delivery.delivery_city }}, {{ delivery.delivery_area }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if delivery.status == 'PENDING' %}
+                                            <span class="badge bg-primary">Pending</span>
+                                        {% elif delivery.status == 'ASSIGNED' %}
+                                            <span class="badge bg-info">Assigned</span>
+                                        {% elif delivery.status == 'PICKED_UP' %}
+                                            <span class="badge bg-warning">Picked Up</span>
+                                        {% elif delivery.status == 'IN_TRANSIT' %}
+                                            <span class="badge bg-warning">In Transit</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>KES {{ delivery.amount }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'delivery_tracking' tracking_id=delivery.tracking_id %}" class="btn btn-sm btn-outline-primary">
+                                                <i data-lucide="map-pin"></i> Track
+                                            </a>
+                                            {% if delivery.status == 'PENDING' %}
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="cancelDelivery('{{ delivery.tracking_id }}')">
+                                                <i data-lucide="x"></i> Cancel
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <img src="{% static 'img/empty-box.svg' %}" alt="No active deliveries" class="mb-3" style="width: 120px;">
+                        <h5>No Active Deliveries</h5>
+                        <p class="text-muted">Create a new delivery to get started!</p>
+                        <a href="{% url 'new_delivery' %}" class="btn btn-primary">
+                            <i data-lucide="plus"></i> Create Delivery
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Completed Deliveries -->
+                <div class="tab-pane fade" id="completed">
+                    {% if completed_deliveries %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Order Details</th>
+                                    <th>Package Info</th>
+                                    <th>Locations</th>
+                                    <th>Completed</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for delivery in completed_deliveries %}
+                                <tr>
+                                    <td>
+                                        <strong>#{{ delivery.order_id }}</strong><br>
+                                        <small class="text-muted">{{ delivery.created_at|date:"M d, Y" }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary text-capitalize">{{ delivery.package_type }}</span><br>
+                                        <small>{{ delivery.package_description|truncatechars:50 }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i data-lucide="arrow-up" class="me-2 text-success"></i>
+                                            <small>{{ delivery.pickup_city }}, {{ delivery.pickup_area }}</small>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i data-lucide="arrow-down" class="me-2 text-danger"></i>
+                                            <small>{{ delivery.delivery_city }}, {{ delivery.delivery_area }}</small>
+                                        </div>
+                                    </td>
+                                    <td>{{ delivery.delivery_time|date:"M d, Y H:i" }}</td>
+                                    <td>KES {{ delivery.amount }}</td>
+                                    <td>
+                                        <a href="{% url 'delivery_tracking' tracking_id=delivery.tracking_id %}" class="btn btn-sm btn-outline-secondary">
+                                            <i data-lucide="file-text"></i> Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <img src="{% static 'img/empty-box.svg' %}" alt="No completed deliveries" class="mb-3" style="width: 120px;">
+                        <h5>No Completed Deliveries</h5>
+                        <p class="text-muted">Your completed deliveries will appear here.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Cancelled Deliveries -->
+                <div class="tab-pane fade" id="cancelled">
+                    {% if cancelled_deliveries %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Order Details</th>
+                                    <th>Package Info</th>
+                                    <th>Locations</th>
+                                    <th>Cancelled</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for delivery in cancelled_deliveries %}
+                                <tr class="text-muted">
+                                    <td>
+                                        <strong>#{{ delivery.order_id }}</strong><br>
+                                        <small>{{ delivery.created_at|date:"M d, Y" }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary text-capitalize">{{ delivery.package_type }}</span><br>
+                                        <small>{{ delivery.package_description|truncatechars:50 }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i data-lucide="arrow-up" class="me-2"></i>
+                                            <small>{{ delivery.pickup_city }}, {{ delivery.pickup_area }}</small>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i data-lucide="arrow-down" class="me-2"></i>
+                                            <small>{{ delivery.delivery_city }}, {{ delivery.delivery_area }}</small>
+                                        </div>
+                                    </td>
+                                    <td>{{ delivery.updated_at|date:"M d, Y H:i" }}</td>
+                                    <td>KES {{ delivery.amount }}</td>
+                                    <td>
+                                        <a href="{% url 'delivery_tracking' tracking_id=delivery.tracking_id %}" class="btn btn-sm btn-outline-secondary">
+                                            <i data-lucide="file-text"></i> Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <img src="{% static 'img/empty-box.svg' %}" alt="No cancelled deliveries" class="mb-3" style="width: 120px;">
+                        <h5>No Cancelled Deliveries</h5>
+                        <p class="text-muted">Your cancelled deliveries will appear here.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function cancelDelivery(trackingId) {
+    if (confirm('Are you sure you want to cancel this delivery? Only pending deliveries can be cancelled.')) {
+        fetch('/delivery/' + trackingId + '/cancel/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.error || 'Failed to cancel delivery. Only pending deliveries can be cancelled.');
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error);
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Lucide icons
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,236 @@
+{% extends "users/dashboard_base.html" %}
+{% load static %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <!-- Page Title -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>My Jobs</h2>
+        </div>
+    </div>
+
+    <!-- Active Jobs Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Active Jobs</h5>
+                    {% if active_jobs %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tracking ID</th>
+                                        <th>Pickup</th>
+                                        <th>Delivery</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for job in active_jobs %}
+                                    <tr>
+                                        <td>{{ job.tracking_id }}</td>
+                                        <td>{{ job.pickup_location }}</td>
+                                        <td>{{ job.delivery_location }}</td>
+                                        <td>
+                                            <span class="badge {% if job.status == 'ASSIGNED' %}bg-info{% elif job.status == 'PICKED_UP' %}bg-primary{% elif job.status == 'IN_TRANSIT' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                                {{ job.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if job.status == 'ASSIGNED' %}
+                                                <form method="POST" action="{% url 'update_job_status' job.id %}" style="display: inline;">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="status" value="PICKED_UP">
+                                                    <button type="submit" class="btn btn-sm btn-primary">
+                                                        <i data-lucide="package"></i> Mark Picked Up
+                                                    </button>
+                                                </form>
+                                            {% elif job.status == 'PICKED_UP' %}
+                                                <form method="POST" action="{% url 'update_job_status' job.id %}" style="display: inline;">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="status" value="IN_TRANSIT">
+                                                    <button type="submit" class="btn btn-sm btn-warning">
+                                                        <i data-lucide="truck"></i> Mark In Transit
+                                                    </button>
+                                                </form>
+                                            {% elif job.status == 'IN_TRANSIT' %}
+                                                <form method="POST" action="{% url 'update_job_status' job.id %}" style="display: inline;">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="status" value="DELIVERED">
+                                                    <button type="submit" class="btn btn-sm btn-success">
+                                                        <i data-lucide="check"></i> Mark Delivered
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">No active jobs</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Jobs Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Available Jobs</h5>
+                    {% if available_jobs %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tracking ID</th>
+                                        <th>Pickup</th>
+                                        <th>Delivery</th>
+                                        <th>Package</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for job in available_jobs %}
+                                    <tr>
+                                        <td>{{ job.tracking_id }}</td>
+                                        <td>{{ job.pickup_location }}</td>
+                                        <td>{{ job.delivery_location }}</td>
+                                        <td>{{ job.package_description }}</td>
+                                        <td>
+                                            <form method="POST" action="{% url 'accept_job' job.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                    <i data-lucide="check"></i> Accept
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">No available jobs at the moment</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Jobs Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Completed Jobs</h5>
+                    {% if completed_jobs %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tracking ID</th>
+                                        <th>Customer</th>
+                                        <th>Delivery Location</th>
+                                        <th>Completed On</th>
+                                        <th>Earnings</th>
+                                        <th>Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for job in completed_jobs %}
+                                    <tr>
+                                        <td>{{ job.tracking_id }}</td>
+                                        <td>{{ job.customer.get_full_name }}</td>
+                                        <td>{{ job.delivery_location }}</td>
+                                        <td>{{ job.delivery_time|date:"M d, Y" }} at {{ job.delivery_time|time:"h:i A" }}</td>
+                                        <td>
+                                            {% with job_earnings=job.earnings_set.first %}
+                                                {% if job_earnings %}
+                                                    <span class="text-success">${{ job_earnings.amount|floatformat:2 }}</span>
+                                                {% else %}
+                                                    <span class="text-muted">N/A</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </td>
+                                        <td>
+                                            {% if job.worker_rating %}
+                                                <div class="d-flex">
+                                                    {% for i in "12345"|make_list %}
+                                                        <i data-lucide="star" class="{% if forloop.counter <= job.worker_rating %}text-warning{% else %}text-muted{% endif %}" style="width: 16px; height: 16px;"></i>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">Not rated</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <img src="{% static 'users/img/empty-deliveries.svg' %}" alt="No completed jobs" class="mb-3" style="max-width: 200px;">
+                            <h5>No Completed Jobs</h5>
+                            <p class="text-muted">Your completed jobs will appear here</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancelled Jobs Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Cancelled Jobs</h5>
+                    {% if cancelled_jobs %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tracking ID</th>
+                                        <th>Customer</th>
+                                        <th>Delivery Location</th>
+                                        <th>Cancelled On</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for job in cancelled_jobs %}
+                                    <tr>
+                                        <td>{{ job.tracking_id }}</td>
+                                        <td>{{ job.customer.get_full_name }}</td>
+                                        <td>{{ job.delivery_location }}</td>
+                                        <td>{{ job.updated_at|date:"M d, Y" }} at {{ job.updated_at|time:"h:i A" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <img src="{% static 'users/img/empty-deliveries.svg' %}" alt="No cancelled jobs" class="mb-3" style="max-width: 200px;">
+                            <h5>No Cancelled Jobs</h5>
+                            <p class="text-muted">Your cancelled jobs will appear here</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

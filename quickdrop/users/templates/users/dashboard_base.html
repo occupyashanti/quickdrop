@@ -1,0 +1,221 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Override the entire content block to prevent footer from displaying -->
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar bg-dark text-white">
+        <div class="sidebar-header p-3">
+            <img src="{% static 'users/img/quickdrop-logo-white.png' %}" alt="QuickDrop" class="logo">
+        </div>
+        <div class="user-info p-3 border-bottom">
+            <div class="d-flex align-items-center">
+                <div class="avatar bg-primary rounded-circle me-2">
+                    {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                </div>
+                <div>
+                    <h6 class="mb-0">{{ request.user.get_full_name }}</h6>
+                    <small class="text-muted">{{ request.user.userprofile.get_user_type_display }}</small>
+                </div>
+            </div>
+        </div>
+        <ul class="nav flex-column p-3">
+            <li class="nav-item">
+                <a href="{% url 'dashboard' %}" class="nav-link {% if active_tab == 'overview' %}active{% endif %}">
+                    <i data-lucide="layout-dashboard"></i> Overview
+                </a>
+            </li>
+            {% if request.user.userprofile.user_type == 'customer' %}
+                <li class="nav-item">
+                    <a href="{% url 'new_delivery' %}" class="nav-link {% if active_tab == 'new_delivery' %}active{% endif %}">
+                        <i data-lucide="package-plus"></i> New Delivery
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'my_deliveries' %}" class="nav-link {% if active_tab == 'my_deliveries' %}active{% endif %}">
+                        <i data-lucide="packages"></i> My Deliveries
+                    </a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a href="#available-jobs" class="nav-link {% if active_tab == 'available_jobs' %}active{% endif %}">
+                        <i data-lucide="list"></i> Available Jobs
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'my_jobs' %}" class="nav-link {% if active_tab == 'my_jobs' %}active{% endif %}">
+                        <i data-lucide="clipboard-list"></i> My Jobs
+                    </a>
+                </li>
+            {% endif %}
+            <li class="nav-item">
+                <a href="{% url 'profile' %}" class="nav-link {% if active_tab == 'profile' %}active{% endif %}">
+                    <i data-lucide="user"></i> Profile
+                </a>
+            </li>
+            <li class="nav-item mt-auto">
+                <a href="{% url 'logout' %}" class="nav-link text-danger">
+                    <i data-lucide="log-out"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom p-3">
+            <div class="container-fluid">
+                <button class="btn btn-link sidebar-toggle">
+                    <i data-lucide="menu"></i>
+                </button>
+                <div class="d-flex">
+                    <div class="dropdown">
+                        <button class="btn btn-link" type="button" id="notificationsDropdown" data-bs-toggle="dropdown">
+                            <i data-lucide="bell"></i>
+                            <span class="notification-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <h6 class="dropdown-header">Notifications</h6>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">
+                                <small class="text-muted">Just now</small>
+                                <p class="mb-0">Your delivery has been picked up</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="content p-4">
+            {% block dashboard_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+{% block footer %}{% endblock %}
+
+<style>
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 280px;
+    min-height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    transition: all 0.3s;
+}
+
+.sidebar .nav-link {
+    color: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    color: white;
+    background: rgba(255,255,255,0.1);
+}
+
+.sidebar .nav-link i {
+    width: 20px;
+    height: 20px;
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 280px;
+    transition: all 0.3s;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Dashboard Cards */
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .sidebar {
+        margin-left: -280px;
+    }
+    .sidebar.active {
+        margin-left: 0;
+    }
+    .main-content {
+        margin-left: 0;
+    }
+    .main-content.pushed {
+        margin-left: 280px;
+    }
+}
+</style>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Sidebar toggle
+    const sidebarToggle = document.querySelector('.sidebar-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+        mainContent.classList.toggle('pushed');
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

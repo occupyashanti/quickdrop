@@ -1,0 +1,215 @@
+{% extends "users/dashboard_base.html" %}
+{% load static %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Delivery Details Card -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0">
+                            Delivery Details
+                            <span class="badge {% if delivery.status == 'DELIVERED' %}bg-success{% elif delivery.status == 'IN_TRANSIT' %}bg-warning{% elif delivery.status == 'CANCELLED' %}bg-danger{% else %}bg-primary{% endif %} ms-2">
+                                {{ delivery.get_status_display }}
+                            </span>
+                        </h5>
+                        <div>
+                            <a href="{% url 'delivery_tracking' tracking_id=delivery.tracking_id %}" class="btn btn-primary btn-sm">
+                                <i data-lucide="map-pin"></i> Track Delivery
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Order Info -->
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Order Information</h6>
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Order ID</dt>
+                                <dd class="col-sm-8">#{{ delivery.order_id }}</dd>
+
+                                <dt class="col-sm-4">Created</dt>
+                                <dd class="col-sm-8">{{ delivery.created_at|date:"M d, Y H:i" }}</dd>
+
+                                <dt class="col-sm-4">Status</dt>
+                                <dd class="col-sm-8">{{ delivery.get_status_display }}</dd>
+
+                                <dt class="col-sm-4">Amount</dt>
+                                <dd class="col-sm-8">KES {{ delivery.amount }}</dd>
+
+                                <dt class="col-sm-4">Payment</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge {% if delivery.payment_status == 'PAID' %}bg-success{% elif delivery.payment_status == 'PENDING' %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ delivery.get_payment_status_display }}
+                                    </span>
+                                </dd>
+                            </dl>
+                        </div>
+
+                        <!-- Package Info -->
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Package Information</h6>
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Type</dt>
+                                <dd class="col-sm-8">{{ delivery.package_type }}</dd>
+
+                                <dt class="col-sm-4">Weight</dt>
+                                <dd class="col-sm-8">{{ delivery.weight }} kg</dd>
+
+                                <dt class="col-sm-4">Description</dt>
+                                <dd class="col-sm-8">{{ delivery.package_description }}</dd>
+                            </dl>
+                        </div>
+
+                        <!-- Pickup Details -->
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Pickup Details</h6>
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">City</dt>
+                                <dd class="col-sm-8">{{ delivery.pickup_city }}</dd>
+
+                                <dt class="col-sm-4">Area</dt>
+                                <dd class="col-sm-8">{{ delivery.pickup_area }}</dd>
+
+                                <dt class="col-sm-4">Location</dt>
+                                <dd class="col-sm-8">{{ delivery.pickup_location }}</dd>
+                            </dl>
+                        </div>
+
+                        <!-- Delivery Details -->
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Delivery Details</h6>
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">City</dt>
+                                <dd class="col-sm-8">{{ delivery.delivery_city }}</dd>
+
+                                <dt class="col-sm-4">Area</dt>
+                                <dd class="col-sm-8">{{ delivery.delivery_area }}</dd>
+
+                                <dt class="col-sm-4">Location</dt>
+                                <dd class="col-sm-8">{{ delivery.delivery_location }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Status Timeline -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Delivery Timeline</h5>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-0">Order Created</h6>
+                                <small class="text-muted">{{ delivery.created_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+
+                        {% if delivery.assigned_at %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-0">Assigned to Driver</h6>
+                                <small class="text-muted">{{ delivery.assigned_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if delivery.pickup_time %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-warning"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-0">Package Picked Up</h6>
+                                <small class="text-muted">{{ delivery.pickup_time|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if delivery.delivery_time %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-0">Delivered Successfully</h6>
+                                <small class="text-muted">{{ delivery.delivery_time|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if delivery.status == 'CANCELLED' %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-danger"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-0">Delivery Cancelled</h6>
+                                <small class="text-muted">{{ delivery.updated_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -1.5rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #e9ecef;
+}
+
+.timeline-content {
+    padding-left: 0.5rem;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Lucide icons
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

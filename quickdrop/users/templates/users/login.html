@@ -2,11 +2,15 @@
 {% load static %}  <!-- Ensure static files are loaded -->
 
 {% block content %}
-<div class="container-fluid vh-100 d-flex align-items-center justify-content-center">
-    <div class="row w-75 shadow-lg rounded overflow-hidden">
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
+    <div class="row w-75 shadow-lg rounded-4 overflow-hidden" style="max-width: 1000px;">
         <!-- Left Side (Image) -->
-        <div class="col-md-6 p-0 d-none d-md-block">
-            <img src="{% static 'images/login_image.jpeg' %}" class="img-fluid w-100 h-100" alt="Delivery">
+        <div class="col-md-6 p-5 bg-success d-none d-md-flex align-items-center justify-content-center">
+            <div class="text-center text-white">
+                <img src="{% static 'images/auth/login.svg' %}" class="img-fluid mb-4" style="max-height: 300px;" alt="Delivery">
+                <h3 class="h4 mb-3">Welcome Back!</h3>
+                <p class="mb-0">Log in to manage your deliveries and track your packages in real-time.</p>
+            </div>
         </div>
 
         <!-- Right Side (Login Form) -->
@@ -16,7 +20,7 @@
                 <p class="text-muted">Log in below to continue</p>
             </div>
 
-            <form method="POST">
+            <form id="loginForm" method="POST">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Username</label>
@@ -39,4 +43,33 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    fetch('{% url "login" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: new URLSearchParams(formData)
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.href = '{% url "dashboard" %}';
+        } else {
+            return response.json().then(data => {
+                alert(data.error || 'Login failed. Please check your credentials.');
+            });
+        }
+    })
+    .catch(error => {
+        alert('An error occurred. Please try again.');
+    });
+});
+</script>
 {% endblock %}

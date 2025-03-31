@@ -1,4 +1,4 @@
-#!/home/ghost/Documents/qd/venv/bin/python3
+#!/home/ghost/Documents/qd/venv/bin/python3.13
 # -*- coding: utf-8 -*-
 import re
 import sys

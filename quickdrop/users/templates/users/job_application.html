@@ -1,0 +1,60 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h1 class="mb-4">Apply for {{ job.title }}</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Job Details</h5>
+                    <p><strong>Department:</strong> {{ job.department }}</p>
+                    <p><strong>Location:</strong> {{ job.location }}</p>
+                    <p><strong>Employment Type:</strong> {{ job.get_employment_type_display }}</p>
+                    
+                    <h6 class="mt-4">Description</h6>
+                    <p>{{ job.description }}</p>
+                    
+                    <h6 class="mt-4">Requirements</h6>
+                    <p>{{ job.requirements }}</p>
+                </div>
+            </div>
+
+            {% if messages %}
+            <div class="messages mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Submit Your Application</h5>
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="resume" class="form-label">Resume (PDF)</label>
+                            <input type="file" class="form-control" id="resume" name="resume" accept=".pdf" required>
+                            <div class="form-text">Please upload your resume in PDF format.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cover_letter" class="form-label">Cover Letter</label>
+                            <textarea class="form-control" id="cover_letter" name="cover_letter" rows="6" required></textarea>
+                            <div class="form-text">Tell us why you're interested in this position and what makes you a great fit.</div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'careers' %}" class="btn btn-outline-secondary">Back to Careers</a>
+                            <button type="submit" class="btn btn-primary">Submit Application</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

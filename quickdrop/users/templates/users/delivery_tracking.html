@@ -1,0 +1,245 @@
+{% extends "users/dashboard_base.html" %}
+{% load static %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title mb-0">
+                    Track Delivery #{{ delivery.order_id }}
+                    <span class="badge {% if delivery.status == 'DELIVERED' %}bg-success{% elif delivery.status == 'IN_TRANSIT' %}bg-warning{% elif delivery.status == 'CANCELLED' %}bg-danger{% else %}bg-primary{% endif %} ms-2">
+                        {{ delivery.get_status_display }}
+                    </span>
+                </h5>
+                <a href="{% url 'delivery_detail' delivery_id=delivery.id %}" class="btn btn-outline-primary btn-sm">
+                    <i data-lucide="file-text"></i> View Details
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <!-- Delivery Progress -->
+                    <div class="delivery-progress mb-4">
+                        <div class="progress-step {% if delivery.status != 'PENDING' %}completed{% endif %}">
+                            <div class="step-icon">
+                                <i data-lucide="package"></i>
+                            </div>
+                            <div class="step-content">
+                                <h6>Order Created</h6>
+                                <small class="text-muted">{{ delivery.created_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+
+                        <div class="progress-step {% if delivery.status == 'PICKED_UP' or delivery.status == 'IN_TRANSIT' or delivery.status == 'DELIVERED' %}completed{% endif %}">
+                            <div class="step-icon">
+                                <i data-lucide="truck"></i>
+                            </div>
+                            <div class="step-content">
+                                <h6>Picked Up</h6>
+                                {% if delivery.pickup_time %}
+                                <small class="text-muted">{{ delivery.pickup_time|date:"M d, Y H:i" }}</small>
+                                {% else %}
+                                <small class="text-muted">Pending</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="progress-step {% if delivery.status == 'IN_TRANSIT' %}active{% elif delivery.status == 'DELIVERED' %}completed{% endif %}">
+                            <div class="step-icon">
+                                <i data-lucide="navigation"></i>
+                            </div>
+                            <div class="step-content">
+                                <h6>In Transit</h6>
+                                <small class="text-muted">
+                                    {% if delivery.status == 'IN_TRANSIT' %}
+                                        Currently in transit
+                                    {% elif delivery.status == 'DELIVERED' %}
+                                        Completed
+                                    {% else %}
+                                        Pending
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="progress-step {% if delivery.status == 'DELIVERED' %}completed{% endif %}">
+                            <div class="step-icon">
+                                <i data-lucide="check-circle"></i>
+                            </div>
+                            <div class="step-content">
+                                <h6>Delivered</h6>
+                                {% if delivery.delivery_time %}
+                                <small class="text-muted">{{ delivery.delivery_time|date:"M d, Y H:i" }}</small>
+                                {% else %}
+                                <small class="text-muted">Pending</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <!-- Delivery Map -->
+                    <div class="delivery-map">
+                        <div id="map" style="height: 400px; border-radius: 8px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.delivery-progress {
+    position: relative;
+    padding: 20px 0;
+}
+
+.delivery-progress::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 25px;
+    height: 100%;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.progress-step {
+    position: relative;
+    padding-left: 70px;
+    padding-bottom: 30px;
+}
+
+.progress-step:last-child {
+    padding-bottom: 0;
+}
+
+.step-icon {
+    position: absolute;
+    left: 0;
+    width: 50px;
+    height: 50px;
+    background: #fff;
+    border: 2px solid #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.progress-step.completed .step-icon {
+    background: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+.progress-step.active .step-icon {
+    background: #007bff;
+    border-color: #007bff;
+    color: #fff;
+}
+
+.step-content {
+    padding: 3px 0;
+}
+
+.step-content h6 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.step-content small {
+    display: block;
+    margin-top: 2px;
+}
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Initialize map
+    const map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 12,
+        center: { 
+            lat: parseFloat('{{ delivery.pickup_latitude|default:"-1.2921" }}'),
+            lng: parseFloat('{{ delivery.pickup_longitude|default:"36.8219" }}')
+        }
+    });
+
+    // Add markers for pickup and delivery locations
+    const pickupLocation = { 
+        lat: parseFloat('{{ delivery.pickup_latitude|default:"-1.2921" }}'),
+        lng: parseFloat('{{ delivery.pickup_longitude|default:"36.8219" }}')}
+    ;
+    const deliveryLocation = { 
+        lat: parseFloat('{{ delivery.delivery_latitude|default:"-1.2921" }}'),
+        lng: parseFloat('{{ delivery.delivery_longitude|default:"36.8219" }}')}
+    ;
+
+    const pickupMarker = new google.maps.Marker({
+        position: pickupLocation,
+        map: map,
+        icon: {
+            url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+            scaledSize: new google.maps.Size(32, 32)
+        },
+        title: 'Pickup Location'
+    });
+
+    const deliveryMarker = new google.maps.Marker({
+        position: deliveryLocation,
+        map: map,
+        icon: {
+            url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            scaledSize: new google.maps.Size(32, 32)
+        },
+        title: 'Delivery Location'
+    });
+
+    // Draw route between pickup and delivery
+    const directionsService = new google.maps.DirectionsService();
+    const directionsRenderer = new google.maps.DirectionsRenderer({
+        map: map,
+        suppressMarkers: true
+    });
+
+    const request = {
+        origin: pickupLocation,
+        destination: deliveryLocation,
+        travelMode: 'DRIVING'
+    };
+
+    directionsService.route(request, function(result, status) {
+        if (status === 'OK') {
+            directionsRenderer.setDirections(result);
+            
+            // Fit map to show both markers and route
+            const bounds = new google.maps.LatLngBounds();
+            bounds.extend(pickupLocation);
+            bounds.extend(deliveryLocation);
+            map.fitBounds(bounds);
+        }
+    });
+});
+</script>
+{% endblock %}

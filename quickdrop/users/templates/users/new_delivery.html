@@ -1,0 +1,374 @@
+{% extends "users/dashboard_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Create New Delivery</h5>
+                    
+                    <!-- Progress Steps -->
+                    <div class="delivery-steps mb-4">
+                        <div class="progress" style="height: 3px;">
+                            <div class="progress-bar" role="progressbar" style="width: 25%;" id="progress-bar"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <div class="step active" data-step="1">
+                                <div class="step-circle">1</div>
+                                <div class="step-label">Package</div>
+                            </div>
+                            <div class="step" data-step="2">
+                                <div class="step-circle">2</div>
+                                <div class="step-label">Locations</div>
+                            </div>
+                            <div class="step" data-step="3">
+                                <div class="step-circle">3</div>
+                                <div class="step-label">Contact</div>
+                            </div>
+                            <div class="step" data-step="4">
+                                <div class="step-circle">4</div>
+                                <div class="step-label">Payment</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="POST" id="deliveryForm">
+                        {% csrf_token %}
+                        
+                        <!-- Step 1: Package Details -->
+                        <div class="form-step" id="step1">
+                            <h6 class="mb-3">Package Details</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Package Description</label>
+                                <textarea name="package_description" class="form-control" rows="3" required></textarea>
+                                <div class="form-text">Describe your package contents and any special handling instructions.</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Weight (kg)</label>
+                                    <input type="number" name="weight" class="form-control" step="0.1" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Package Type</label>
+                                    <select class="form-select" name="package_type" required>
+                                        <option value="">Select package type</option>
+                                        <option value="document">Document</option>
+                                        <option value="parcel">Parcel</option>
+                                        <option value="fragile">Fragile</option>
+                                        <option value="perishable">Perishable</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-primary next-step">Continue</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Location Details -->
+                        <div class="form-step d-none" id="step2">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <h6 class="mb-3">Pickup Location</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Street Address</label>
+                                        <input type="text" name="pickup_street" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Building/Apartment</label>
+                                        <input type="text" name="pickup_building" class="form-control">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">City</label>
+                                            <input type="text" name="pickup_city" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Area/Estate</label>
+                                            <input type="text" name="pickup_area" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Landmark (Optional)</label>
+                                        <input type="text" name="pickup_landmark" class="form-control">
+                                        <div class="form-text">Nearby landmark to help locate the address</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <h6 class="mb-3">Delivery Location</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Street Address</label>
+                                        <input type="text" name="delivery_street" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Building/Apartment</label>
+                                        <input type="text" name="delivery_building" class="form-control">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">City</label>
+                                            <input type="text" name="delivery_city" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Area/Estate</label>
+                                            <input type="text" name="delivery_area" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Landmark (Optional)</label>
+                                        <input type="text" name="delivery_landmark" class="form-control">
+                                        <div class="form-text">Nearby landmark to help locate the address</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary prev-step">Back</button>
+                                <button type="button" class="btn btn-primary next-step">Continue</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Contact Details -->
+                        <div class="form-step d-none" id="step3">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <h6 class="mb-3">Sender Details</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Name</label>
+                                        <input type="text" name="sender_name" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Phone</label>
+                                        <input type="tel" name="sender_phone" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <h6 class="mb-3">Recipient Details</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Name</label>
+                                        <input type="text" name="recipient_name" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Phone</label>
+                                        <input type="tel" name="recipient_phone" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Delivery Notes</label>
+                                <textarea name="delivery_notes" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary prev-step">Back</button>
+                                <button type="button" class="btn btn-primary next-step">Continue</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Payment Details -->
+                        <div class="form-step d-none" id="step4">
+                            <h6 class="mb-3">Payment Details</h6>
+                            
+                            <!-- Delivery Cost Summary -->
+                            <div class="card bg-light mb-4">
+                                <div class="card-body">
+                                    <h6 class="card-title">Delivery Cost Summary</h6>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Base Fare</span>
+                                        <span>KES 200.00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Weight Charge</span>
+                                        <span id="weight-charge">KES 0.00</span>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between fw-bold">
+                                        <span>Total Amount</span>
+                                        <span id="total-amount">KES 200.00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Method Selection -->
+                            <div class="mb-4">
+                                <label class="form-label">Select Payment Method</label>
+                                <div class="payment-methods">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="radio" name="payment_method" id="mpesa" value="MPESA" checked>
+                                        <label class="form-check-label" for="mpesa">
+                                            <img src="{% static 'img/mpesa-logo.png' %}" alt="M-Pesa" height="30">
+                                            M-Pesa
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="radio" name="payment_method" id="cash" value="CASH">
+                                        <label class="form-check-label" for="cash">
+                                            <i data-lucide="banknote" class="me-2"></i>
+                                            Cash on Delivery
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="radio" name="payment_method" id="card" value="CARD">
+                                        <label class="form-check-label" for="card">
+                                            <i data-lucide="credit-card" class="me-2"></i>
+                                            Credit/Debit Card
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary prev-step">Back</button>
+                                <button type="submit" class="btn btn-success">Create Delivery</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentStep = 1;
+    const totalSteps = 4;
+    const form = document.getElementById('deliveryForm');
+    const progressBar = document.getElementById('progress-bar');
+    
+    // Handle step navigation
+    document.querySelectorAll('.next-step').forEach(button => {
+        button.addEventListener('click', () => {
+            if (validateStep(currentStep)) {
+                document.getElementById(`step${currentStep}`).classList.add('d-none');
+                currentStep++;
+                document.getElementById(`step${currentStep}`).classList.remove('d-none');
+                updateProgress();
+            }
+        });
+    });
+
+    document.querySelectorAll('.prev-step').forEach(button => {
+        button.addEventListener('click', () => {
+            document.getElementById(`step${currentStep}`).classList.add('d-none');
+            currentStep--;
+            document.getElementById(`step${currentStep}`).classList.remove('d-none');
+            updateProgress();
+        });
+    });
+
+    function updateProgress() {
+        const progress = (currentStep - 1) / (totalSteps - 1) * 100;
+        progressBar.style.width = `${progress}%`;
+        
+        document.querySelectorAll('.step').forEach(step => {
+            const stepNum = parseInt(step.dataset.step);
+            if (stepNum <= currentStep) {
+                step.classList.add('active');
+            } else {
+                step.classList.remove('active');
+            }
+        });
+    }
+
+    function validateStep(step) {
+        const currentStepElement = document.getElementById(`step${step}`);
+        const requiredFields = currentStepElement.querySelectorAll('[required]');
+        let valid = true;
+
+        requiredFields.forEach(field => {
+            if (!field.value) {
+                field.classList.add('is-invalid');
+                valid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+
+        return valid;
+    }
+
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (validateStep(currentStep)) {
+            this.submit();
+        }
+    });
+
+    // Calculate delivery cost based on weight
+    document.querySelector('input[name="weight"]').addEventListener('input', function() {
+        const weight = parseFloat(this.value) || 0;
+        const weightRate = 100; // KES per kg
+        const baseFare = 200; // KES
+        
+        const weightCharge = weight * weightRate;
+        const total = baseFare + weightCharge;
+        
+        document.getElementById('weight-charge').textContent = `KES ${weightCharge.toFixed(2)}`;
+        document.getElementById('total-amount').textContent = `KES ${total.toFixed(2)}`;
+    });
+});
+</script>
+
+<style>
+.delivery-steps .step {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.delivery-steps .step-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 2px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-weight: bold;
+    color: #6c757d;
+}
+
+.delivery-steps .step.active .step-circle {
+    background-color: #198754;
+    border-color: #198754;
+    color: #fff;
+}
+
+.delivery-steps .step-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.delivery-steps .step.active .step-label {
+    color: #198754;
+    font-weight: 500;
+}
+
+.payment-methods .form-check {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+}
+
+.payment-methods .form-check-input:checked + .form-check-label {
+    color: #198754;
+}
+
+.payment-methods .form-check:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+</style>
+{% endblock %}

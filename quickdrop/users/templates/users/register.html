@@ -4,11 +4,15 @@
 {% block title %}Register - QuickDrop{% endblock %}
 
 {% block content %}
-<div class="container-fluid vh-100 d-flex align-items-center justify-content-center bg-gradient">
-    <div class="row w-100 shadow-lg rounded overflow-hidden" style="max-width: 900px;">
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
+    <div class="row w-100 shadow-lg rounded-4 overflow-hidden" style="max-width: 1000px;">
         <!-- Left Side (Image) -->
-        <div class="col-lg-5 d-none d-lg-block p-0">
-            <img src="{% static 'images/register.jpeg' %}" class="img-fluid w-100 h-100" style="object-fit: cover;" alt="Delivery">
+        <div class="col-lg-5 p-5 bg-success d-none d-lg-flex align-items-center justify-content-center">
+            <div class="text-center text-white">
+                <img src="{% static 'images/auth/register.svg' %}" class="img-fluid mb-4" style="max-height: 300px;" alt="Delivery">
+                <h3 class="h4 mb-3">Start Your Journey!</h3>
+                <p class="mb-0">Join our community of delivery professionals and customers. Experience fast and reliable deliveries today.</p>
+            </div>
         </div>
 
         <!-- Right Side (Registration Form) -->
@@ -21,42 +25,53 @@
             <form method="POST">
                 {% csrf_token %}
                 
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i data-lucide="at-sign"></i> Username</label>
+                    <input type="text" name="username" class="form-control" placeholder="Choose a unique username" required>
+                    <div class="form-text">This will be used to log in to your account.</div>
+                </div>
+
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-bold"><i data-lucide="user"></i> First Name</label>
-                        <input type="text" class="form-control" placeholder="John" required>
+                        <input type="text" name="first_name" class="form-control" placeholder="John" required>
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-bold"><i data-lucide="user"></i> Last Name</label>
-                        <input type="text" class="form-control" placeholder="Doe" required>
+                        <input type="text" name="last_name" class="form-control" placeholder="Doe" required>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold"><i data-lucide="mail"></i> Email</label>
-                    <input type="email" class="form-control" placeholder="you@example.com" required>
+                    <input type="email" name="email" class="form-control" placeholder="you@example.com" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold"><i data-lucide="lock"></i> Password</label>
-                    <input type="password" class="form-control" placeholder="Enter a strong password" required>
+                    <input type="password" name="password1" class="form-control" placeholder="Enter a strong password" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i data-lucide="lock-check"></i> Confirm Password</label>
+                    <input type="password" name="password2" class="form-control" placeholder="Confirm your password" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold"><i data-lucide="phone"></i> Phone Number</label>
-                    <input type="tel" class="form-control" placeholder="+254 700 123456" required>
+                    <input type="tel" name="phone_number" class="form-control" placeholder="+254 700 123456" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold"><i data-lucide="map-pin"></i> Address</label>
-                    <input type="text" class="form-control" placeholder="123 Street, Nairobi, Kenya" required>
+                    <input type="text" name="address" class="form-control" placeholder="123 Street, Nairobi, Kenya" required>
                 </div>
 
                 <!-- User Role Selection -->
                 <div class="mb-3">
                     <label class="form-label fw-bold"><i data-lucide="users"></i> Register as</label>
-                    <select class="form-select" id="userType" required>
+                    <select class="form-select" name="user_type" id="userType" required>
                         <option value="" disabled selected>Select an option</option>
                         <option value="customer">Customer - Get deliveries</option>
                         <option value="worker">Worker - Deliver packages</option>
@@ -66,7 +81,7 @@
                 <!-- Vehicle Type (Only for Workers) -->
                 <div class="mb-3 d-none" id="vehicleSelection">
                     <label class="form-label fw-bold"><i data-lucide="truck"></i> Vehicle Type</label>
-                    <select class="form-select">
+                    <select class="form-select" name="vehicle_type">
                         <option value="" disabled selected>Select your vehicle</option>
                         <option value="bike">Motorbike</option>
                         <option value="car">Car</option>

@@ -1,0 +1,217 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Hero Section -->
+    <div class="bg-primary text-white py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="display-4 fw-bold mb-3">Get in Touch</h1>
+                    <p class="lead mb-4">Have questions about our delivery service? We're here to help! Send us a message and our team will get back to you.</p>
+                </div>
+                <div class="col-md-6">
+                    <img src="{% static 'users/img/contact-hero.svg' %}" alt="Contact Us" class="img-fluid" style="max-height: 300px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <div class="row g-5">
+            <!-- Contact Form -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h2 class="h3 mb-4">Send us a Message</h2>
+                        
+                        {% if messages %}
+                        <div class="messages mb-4">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <form method="POST" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="name" class="form-label">Full Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i data-lucide="user"></i></span>
+                                        <input type="text" class="form-control" id="name" name="name" required>
+                                    </div>
+                                    <div class="invalid-feedback">Please provide your name.</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i data-lucide="mail"></i></span>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                    </div>
+                                    <div class="invalid-feedback">Please provide a valid email.</div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="subject" class="form-label">Subject</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i data-lucide="help-circle"></i></span>
+                                    <input type="text" class="form-control" id="subject" name="subject" required>
+                                </div>
+                                <div class="invalid-feedback">Please provide a subject.</div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="message" class="form-label">Message</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i data-lucide="message-square"></i></span>
+                                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                                </div>
+                                <div class="invalid-feedback">Please write your message.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i data-lucide="send" class="me-2"></i>Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="col-lg-5">
+                <!-- Office Location -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h3 class="h4 mb-4">Our Office</h3>
+                        <div id="office-map" style="height: 250px;" class="mb-4 rounded"></div>
+                        <div class="d-flex mb-3">
+                            <div class="flex-shrink-0">
+                                <span class="btn btn-light btn-sm">
+                                    <i data-lucide="map-pin" class="text-primary"></i>
+                                </span>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">Address</h6>
+                                <p class="text-muted mb-0">123 Main Street<br>Nairobi, Kenya</p>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-3">
+                            <div class="flex-shrink-0">
+                                <span class="btn btn-light btn-sm">
+                                    <i data-lucide="phone" class="text-primary"></i>
+                                </span>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">Phone</h6>
+                                <p class="text-muted mb-0">+254 700 000000</p>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <span class="btn btn-light btn-sm">
+                                    <i data-lucide="mail" class="text-primary"></i>
+                                </span>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">Email</h6>
+                                <p class="text-muted mb-0">support@quickdrop.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h3 class="h4 mb-4">Connect With Us</h3>
+                        <div class="d-flex gap-3">
+                            <a href="#" class="btn btn-outline-primary btn-lg rounded-circle" data-bs-toggle="tooltip" title="Facebook">
+                                <i data-lucide="facebook"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-info btn-lg rounded-circle" data-bs-toggle="tooltip" title="Twitter">
+                                <i data-lucide="twitter"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-danger btn-lg rounded-circle" data-bs-toggle="tooltip" title="Instagram">
+                                <i data-lucide="instagram"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-primary btn-lg rounded-circle" data-bs-toggle="tooltip" title="LinkedIn">
+                                <i data-lucide="linkedin"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+{{ block.super }}
+{% if google_maps_api_key %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+{% endif %}
+<script>
+// Initialize Google Map
+function initMap() {
+    {% if google_maps_api_key %}
+    const officeLocation = { lat: -1.2921, lng: 36.8219 }; // Nairobi coordinates
+    const map = new google.maps.Map(document.getElementById('office-map'), {
+        zoom: 15,
+        center: officeLocation,
+        styles: [
+            {
+                "featureType": "all",
+                "elementType": "geometry",
+                "stylers": [{"color": "#f5f5f5"}]
+            },
+            {
+                "featureType": "water",
+                "elementType": "geometry",
+                "stylers": [{"color": "#c9c9c9"}]
+            }
+        ]
+    });
+
+    const marker = new google.maps.Marker({
+        position: officeLocation,
+        map: map,
+        title: 'QuickDrop Office'
+    });
+    {% else %}
+    const mapDiv = document.getElementById('office-map');
+    mapDiv.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100 bg-light text-muted"><p class="mb-0">Map preview unavailable</p></div>';
+    {% endif %}
+}
+
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Initialize map
+    initMap();
+});
+</script>
+{% endblock %}
+{% endblock %}

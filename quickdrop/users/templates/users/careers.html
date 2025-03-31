@@ -1,0 +1,80 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Join Our Team</h1>
+    <p class="lead mb-4">At QuickDrop, we're always looking for talented individuals to join our team. Check out our open positions below.</p>
+
+    <div class="row mb-5">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Why Work With Us?</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <i class="bi bi-graph-up text-primary h3"></i>
+                                <h6>Growth Opportunities</h6>
+                                <p>We invest in our employees' development and provide clear career paths.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <i class="bi bi-people text-primary h3"></i>
+                                <h6>Great Culture</h6>
+                                <p>Join a diverse team of passionate individuals working towards a common goal.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <i class="bi bi-heart text-primary h3"></i>
+                                <h6>Competitive Benefits</h6>
+                                <p>We offer comprehensive health coverage and competitive compensation packages.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <i class="bi bi-clock text-primary h3"></i>
+                                <h6>Work-Life Balance</h6>
+                                <p>Flexible working hours and remote work options available.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="mb-4">Open Positions</h2>
+    <div class="row g-4">
+        {% for job in jobs %}
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ job.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ job.department }} | {{ job.location }}</h6>
+                    <p class="card-text">{{ job.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary">{{ job.employment_type }}</span>
+                        <a href="{% url 'job_application' job.id %}" class="btn btn-outline-primary">Apply Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                No open positions at the moment. Please check back later!
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-5">
+        <h3>Don't see a position that fits?</h3>
+        <p>Send us your resume anyway! We're always looking for talented people to join our team.</p>
+        <a href="{% url 'contact' %}" class="btn btn-primary">Contact Us</a>
+    </div>
+</div>
+{% endblock %}
